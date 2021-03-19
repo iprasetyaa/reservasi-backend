@@ -13,10 +13,12 @@ class DatabaseSeeder extends Seeder
     {
         \DB::table('assets')->delete();
         \DB::table('users')->delete();
+        \DB::table('command_center_shifts')->delete();
 
         $this->call([
             AssetSeeder::class,
-            UserSeeder::class
+            UserSeeder::class,
+            CommandCenterShiftSeeder::class
         ]);
     }
 }

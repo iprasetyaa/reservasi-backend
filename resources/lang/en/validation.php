@@ -121,6 +121,7 @@ return [
     'asset_modified' => 'Reservation data can be edited if the status has not been approved',
     'asset_modified_time' => 'reservation data may not be edited
         if the current time is less than 30 minutes from the promised time',
+    'quota_full' => 'Quota visit for this shift is full',
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines
