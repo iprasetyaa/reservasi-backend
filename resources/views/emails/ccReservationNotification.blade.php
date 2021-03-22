@@ -8,7 +8,7 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 @if($reservation->organization_name)
 - Instansi: {{ $reservation->organization_name }}
 @endif
-- Waktu: {{ $reservation->reservation_date }}
+- Waktu: {{ $reservation->reservation_date_formated }}
 - Sesi: {{ $reservation->commandCenterShift->name }}
 - Status: {{ $reservation->approval_status }}
 

@@ -46,4 +46,9 @@ class CommandCenterReservation extends Model
     {
         return $this->belongsTo(CommandCenterShift::class);
     }
+
+    protected function getReservationDateFormatedAttribute()
+    {
+        return Carbon::parse($this->reservation_date)->format('d-m-Y');
+    }
 }
