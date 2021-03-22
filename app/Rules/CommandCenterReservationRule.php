@@ -4,6 +4,7 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 use App\Models\CommandCenterReservation;
+use App\Enums\CommandCenterReservationStatusEnum;
 
 class CommandCenterReservationRule implements Rule
 {
@@ -29,8 +30,9 @@ class CommandCenterReservationRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        $ccReservation = CommandCenterReservation::whereDate('command_center_reservations.reservation_date', $this->reservation_date)
-                                            ->where('command_center_reservations.command_center_shift_id', $this->command_center_shift_id)
+        $ccReservation = CommandCenterReservation::whereDate('reservation_date', $this->reservation_date)
+                                            ->where('command_center_shift_id', $this->command_center_shift_id)
+                                            ->where('approval_status', '<>', CommandCenterReservationStatusEnum::REJECTED())
                                             ->sum('visitors');
 
         return ($ccReservation + $this->visitors) <= $this->maxShift;
