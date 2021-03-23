@@ -81,13 +81,9 @@ class CommandCenterReservationController extends Controller
      * @param  \App\CommandCenterReservation  $commandCenterReservation
      * @return \Illuminate\Http\Response
      */
-    public function update(CommandCenterReservationApprovalRequest $request, CommandCenterReservation $commandCenterReservation)
+    public function update(CommandCenterReservationCreateRequest $request, CommandCenterReservation $commandCenterReservation)
     {
-        $commandCenterReservation->update($request->validated() + [
-            'approval_date' => Carbon::now(),
-        ]);
-
-        event(new CCReservationCreated($commandCenterReservation));
+        $commandCenterReservation->update($request->validated());
 
         return new CCReservationResource($commandCenterReservation);
     }
