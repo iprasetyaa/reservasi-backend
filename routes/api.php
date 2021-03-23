@@ -33,6 +33,7 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get('reservation/list', 'ReservationListAllController')->name('reservation.list');
         Route::apiResource('asset', 'AssetController');
         Route::apiResource('reservation', 'ReservationController');
+        Route::put('command-center-reservation/{command_center_reservation}/approval', 'CommandCenterReservationApprovalController');
         Route::apiResource('command-center-reservation', 'CommandCenterReservationController');
         Route::apiResource('close-days', 'CommandCenterCloseDateController')
             ->only(['store', 'update', 'destroy']);
