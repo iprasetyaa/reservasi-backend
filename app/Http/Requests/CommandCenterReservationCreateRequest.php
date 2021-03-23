@@ -35,7 +35,7 @@ class CommandCenterReservationCreateRequest extends FormRequest
             'nik' => 'required|max:16|regex:/[0-9]{16}/',
             'organization_name' => 'string|nullable|max:100',
             'address' => 'string|nullable|max:100',
-            'phone_number' => 'required|min:10|max:13|regex:/(0)[0-9]{10}/',
+            'phone_number' => 'required|min:10|max:13|regex:/(0)[0-9]/',
             'email' => 'required|email:rfc,dns',
             'purpose' => 'string|required|max:255',
             'reservation_date' => 'required|date|date_format:Y-m-d|after_or_equal:reservation_date|before_or_equal:' . $oneMonthLater,
