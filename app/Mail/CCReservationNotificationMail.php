@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Events\CCReservatoinCreated;
+use App\Events\CCReservationCreated;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -19,7 +19,7 @@ class CCReservationNotificationMail extends Mailable
      *
      * @return void
      */
-    public function __construct(CCReservatoinCreated $event)
+    public function __construct(CCReservationCreated $event)
     {
         $this->reservation = $event->reservation;
         $this->approval_status = $event->reservation->approval_status;

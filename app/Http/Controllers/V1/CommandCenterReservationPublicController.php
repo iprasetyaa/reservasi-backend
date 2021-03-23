@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Enums\CommandCenterReservationStatusEnum;
-use App\Events\CCReservatoinCreated;
+use App\Events\CCReservationCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommandCenterReservationCreateRequest;
 use App\Http\Resources\CCReservationResource;
@@ -18,7 +18,7 @@ class CommandCenterReservationPublicController extends Controller
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
         ]);
 
-        event(new CCReservatoinCreated($reservation));
+        event(new CCReservationCreated($reservation));
 
         return new CCReservationResource($reservation);
     }
