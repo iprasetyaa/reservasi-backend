@@ -20,6 +20,8 @@ Route::group(['namespace' => 'V1'], function () {
     Route::apiResource('public/command-center-reservation', 'CommandCenterReservationPublicController')
         ->only(['store']);
     Route::get('public/command-center-reservation/{reservation:reservation_code}', 'CommandCenterReservationPublicController@show');
+    Route::apiResource('close-days', 'CommandCenterCloseDateController')
+        ->only(['index', 'show']);
 });
 
 
@@ -32,6 +34,8 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::apiResource('asset', 'AssetController');
         Route::apiResource('reservation', 'ReservationController');
         Route::apiResource('command-center-reservation', 'CommandCenterReservationController');
+        Route::apiResource('close-days', 'CommandCenterCloseDateController')
+            ->only(['store', 'update', 'destroy']);
         Route::apiResource('reserved', 'ReservedController')
             ->only(['index', 'update'])
             ->parameters([

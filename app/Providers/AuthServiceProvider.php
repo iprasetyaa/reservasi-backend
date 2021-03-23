@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Enums\UserRoleEnum;
+use App\Models\CommandCenterCloseDate;
 use App\Models\Reservation;
+use App\Policies\CCCloseDatePolicy;
 use App\Policies\ReservationPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Reservation::class => ReservationPolicy::class,
+        CommandCenterCloseDate::class => CCCloseDatePolicy::class,
     ];
 
     /**
