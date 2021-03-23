@@ -35,10 +35,10 @@ class CCReservationNotificationMail extends Mailable
     {
         switch ($this->approval_status) {
             case "ALREADY_APPROVED":
-                $this->subject_status = __('message.mail_accepted', [], 'id');
+                $this->subject_status = __('message.mail_accepted');
                 break;
             case "REJECTED":
-                $this->subject_status = __('message.mail_rejected', [], 'id');
+                $this->subject_status = __('message.mail_rejected');
                 break;
         }
 
