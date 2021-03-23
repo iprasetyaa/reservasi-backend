@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CommandCenterReservation;
 use App\Enums\CommandCenterReservationStatusEnum;
 use App\Events\CCReservatoinCreated;
+use App\Http\Requests\CommandCenterReservationApprovalRequest;
 use App\Http\Requests\CommandCenterReservationCreateRequest;
 use App\Http\Resources\CCReservationResource;
 use Carbon\Carbon;
@@ -80,9 +81,11 @@ class CommandCenterReservationController extends Controller
      * @param  \App\CommandCenterReservation  $commandCenterReservation
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, CommandCenterReservation $commandCenterReservation)
+    public function update(CommandCenterReservationApprovalRequest $request, CommandCenterReservation $commandCenterReservation)
     {
-        $commandCenterReservation->update($request->only('approval_status', 'note'));
+        $commandCenterReservation->update($request->validated() + [
+            'approval_date' => Carbon::now(),
+        ]);
 
         event(new CCReservatoinCreated($commandCenterReservation));
 
