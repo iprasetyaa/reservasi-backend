@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CommandCenterShift;
 use App\Models\CommandCenterReservation;
+use App\Enums\CommandCenterReservationStatusEnum;
 
 class CommandCenterAvailabilityController extends Controller
 {
@@ -18,10 +19,10 @@ class CommandCenterAvailabilityController extends Controller
     public function __invoke(Request $request)
     {
         $shift = CommandCenterShift::findOrFail($request->input('command_center_shift_id'));
-        $ccReservation = CommandCenterReservation::whereDate('command_center_reservations.reservation_date', $request->input('reservation_date'))
-                                            ->where('command_center_reservations.command_center_shift_id', $request->input('command_center_shift_id'));
-
-        $ccReservation = $ccReservation->sum('visitors');
+        $ccReservation = CommandCenterReservation::whereDate('reservation_date', $request->input('reservation_date'))
+                                            ->where('command_center_shift_id', $request->input('command_center_shift_id'))
+                                            ->where('approval_status', '<>', CommandCenterReservationStatusEnum::REJECTED())
+                                            ->sum('visitors');
 
         return response()->json([
             'data' => [
