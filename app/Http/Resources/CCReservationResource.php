@@ -29,6 +29,7 @@ class CCReservationResource extends JsonResource
             'reservation_date' => $this->reservation_date,
             'command_center_shift' => $this->commandCenterShift->name,
             'approval_status' => $this->approval_status,
+            'approval_status_label' => $this->approval_status_label,
             'note' => $this->note,
             'approval_date' => $this->approval_date,
             'user_id_updated' => $this->user_id_updated,
