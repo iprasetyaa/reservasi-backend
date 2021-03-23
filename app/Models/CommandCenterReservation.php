@@ -46,14 +46,4 @@ class CommandCenterReservation extends Model
     {
         return $this->belongsTo(CommandCenterShift::class);
     }
-
-    protected function getReservationDateFormatedAttribute()
-    {
-        return Carbon::parse($this->reservation_date)->format('d-m-Y');
-    }
-
-    protected function getApprovalStatusLabelAttribute()
-    {
-        return __('message.' . strtolower($this->approval_status), [], 'id');
-    }
 }
