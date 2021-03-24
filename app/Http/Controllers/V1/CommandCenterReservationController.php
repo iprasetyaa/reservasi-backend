@@ -5,7 +5,8 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Models\CommandCenterReservation;
 use App\Enums\CommandCenterReservationStatusEnum;
-use App\Events\CCReservatoinCreated;
+use App\Events\CCReservationCreated;
+use App\Http\Requests\CommandCenterReservationApprovalRequest;
 use App\Http\Requests\CommandCenterReservationCreateRequest;
 use App\Http\Resources\CCReservationResource;
 use Carbon\Carbon;
@@ -62,7 +63,7 @@ class CommandCenterReservationController extends Controller
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
         ]);
 
-        event(new CCReservatoinCreated($reservation));
+        event(new CCReservationCreated($reservation));
 
         return response()->json(['data' => new CCReservationResource($reservation)], Response::HTTP_CREATED);
     }
@@ -85,11 +86,9 @@ class CommandCenterReservationController extends Controller
      * @param  \App\CommandCenterReservation  $commandCenterReservation
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, CommandCenterReservation $commandCenterReservation)
+    public function update(CommandCenterReservationCreateRequest $request, CommandCenterReservation $commandCenterReservation)
     {
-        $commandCenterReservation->update($request->only('approval_status', 'note'));
-
-        event(new CCReservatoinCreated($commandCenterReservation));
+        $commandCenterReservation->update($request->validated());
 
         return new CCReservationResource($commandCenterReservation);
     }
