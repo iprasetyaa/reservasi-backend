@@ -19,8 +19,13 @@ class CommandCenterCloseDateController extends Controller
     public function index(Request $request)
     {
         $records = CommandCenterCloseDate::query();
+        $sortBy = $request->input('sortBy', 'created_at');
+        $orderBy = $request->input('orderBy', 'desc');
         $perPage = $request->input('perPage', 10);
         $perPage = $this->getPaginationSize($perPage);
+
+        // sort and order
+        $records = $this->sortList($sortBy, $orderBy, $records);
 
         return CCCloseDateResource::collection($records->paginate($perPage));
     }
@@ -97,5 +102,19 @@ class CommandCenterCloseDateController extends Controller
             return $perPage;
         }
         return 10;
+    }
+
+    /**
+     * Function to sort by status
+     *
+     * @param  mixed $request
+     * @param [String] $sortBy
+     * @param [String] $orderBy
+     * @param [Collection] $records
+     * @return Collection
+     */
+    protected function sortList($sortBy, $orderBy, $records)
+    {
+        return $records->orderBy($sortBy, $orderBy);
     }
 }
