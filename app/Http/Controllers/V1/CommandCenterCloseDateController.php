@@ -114,6 +114,6 @@ class CommandCenterCloseDateController extends Controller
      */
     protected function sortList($sortBy, $orderDirection, $records)
     {
-        return $records->orderDirection($sortBy, $orderDirection);
+        return $records->orderBy($sortBy, $orderDirection);
     }
 }
