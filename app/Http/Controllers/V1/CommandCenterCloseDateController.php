@@ -105,9 +105,8 @@ class CommandCenterCloseDateController extends Controller
     }
 
     /**
-     * Function to sort by status
+     * Function to sort the list
      *
-     * @param  mixed $request
      * @param [String] $sortBy
      * @param [String] $orderBy
      * @param [Collection] $records
