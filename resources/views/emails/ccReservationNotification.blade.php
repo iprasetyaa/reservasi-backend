@@ -1,5 +1,5 @@
 @component('mail::message')
-# Persetujuan Reservasi Command Center
+# {{ ($reservation->approval_status == 'REJECTED') ? 'Status Permohonan' : 'Persetujuan' }} Reservasi Command Center
 
 Terima kasih Anda sudah melakukan permohonan reservasi Command Center.
 Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
