@@ -131,11 +131,6 @@ class CommandCenterReservationController extends Controller
     protected function searchList(Request $request, $records)
     {
         if ($request->has('by') and $request->has('keyword')) {
-            if ($request->by == 'reservation_code') {
-                $records->where('reservation_code', $request->keyword);
-                return $records;
-            }
-
             $records->where($request->by, 'LIKE', '%' . $request->keyword . '%');
             return $records;
         }
