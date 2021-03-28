@@ -51,6 +51,7 @@ class CCReservationNotificationMail extends Mailable
                     ->subject('[Command Center Reservation] ' . $this->subject_status)
                     ->with([
                         'from' => config('mail.from.name'),
+                        'url' => config('app.web_microsite_url') . '/cek-reservasi'
                     ]);
     }
 }
