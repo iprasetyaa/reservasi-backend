@@ -33,7 +33,7 @@ class CommandCenterReservationController extends Controller
     {
         $records = CommandCenterReservation::query();
         $sortBy = $request->input('sortBy', 'created_at');
-        $orderBy = $request->input('orderBy', 'desc');
+        $orderDirection = $request->input('orderDirection', 'desc');
         $perPage = $request->input('perPage', 10);
         $perPage = $this->getPaginationSize($perPage);
 
@@ -44,7 +44,7 @@ class CommandCenterReservationController extends Controller
         $records = $this->filterList($request, $records);
 
         // sort and order
-        $records = $this->sortList($sortBy, $orderBy, $records);
+        $records = $this->sortList($sortBy, $orderDirection, $records);
 
         return CCReservationResource::collection($records->paginate($perPage));
     }
@@ -167,12 +167,12 @@ class CommandCenterReservationController extends Controller
      *
      * @param  mixed $request
      * @param [String] $sortBy
-     * @param [String] $orderBy
+     * @param [String] $orderDirection
      * @param [Collection] $records
      * @return Collection
      */
-    protected function sortList($sortBy, $orderBy, $records)
+    protected function sortList($sortBy, $orderDirection, $records)
     {
-        return $records->orderBy($sortBy, $orderBy);
+        return $records->orderBy($sortBy, $orderDirection);
     }
 }
