@@ -32,7 +32,7 @@ class CommandCenterReservationController extends Controller
     public function index(Request $request)
     {
         $records = CommandCenterReservation::query();
-        $sortBy = $request->input('sortBy', 'reservation_date');
+        $sortBy = $request->input('sortBy', 'created_at');
         $orderBy = $request->input('orderBy', 'desc');
         $perPage = $request->input('perPage', 10);
         $perPage = $this->getPaginationSize($perPage);
