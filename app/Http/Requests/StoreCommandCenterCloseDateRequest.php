@@ -24,7 +24,7 @@ class StoreCommandCenterCloseDateRequest extends FormRequest
     public function rules()
     {
         return [
-            'date' => 'required|date',
+            'date' => 'required|date|after_or_equal:today|unique:command_center_close_dates',
             'note' => 'required',
         ];
     }
