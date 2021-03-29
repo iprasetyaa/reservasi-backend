@@ -24,7 +24,7 @@ class UpdateCommandCenterCloseDateRequest extends FormRequest
     public function rules()
     {
         return [
-            'date' => 'date',
+            'date' => 'required|date|after_or_equal:today|unique:command_center_close_dates,date,' . $this->close_day->id,
         ];
     }
 }
