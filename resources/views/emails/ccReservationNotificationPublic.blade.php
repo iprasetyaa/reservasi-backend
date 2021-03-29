@@ -1,5 +1,5 @@
 @component('mail::message')
-# {{ ($reservation->approval_status == 'REJECTED') ? 'Status Permohonan' : 'Persetujuan' }} Reservasi Command Center
+# {{ ($reservation->approval_status == 'ALREADY_APPROVED') ? 'Persutujuan' : 'Status Permohonan' }} Reservasi Command Center
 
 Terima kasih Anda sudah melakukan permohonan reservasi Command Center.
 Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
@@ -15,6 +15,10 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 @if($reservation->note)
 {{ $reservation->note }}
 @endif
+
+@component('mail::button', ['url' => $url])
+Lihat Reservasi
+@endcomponent
 
 Terimakasih,<br>
 {{ $from }}<br>
