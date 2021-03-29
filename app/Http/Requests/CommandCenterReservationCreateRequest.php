@@ -40,10 +40,7 @@ class CommandCenterReservationCreateRequest extends FormRequest
             'reservation_date' => ['required|date|date_format:Y-m-d|after_or_equal:today|before_or_equal:' . $oneMonthLater],
             'command_center_shift_id' => 'required|exists:command_center_shifts,id,deleted_at,NULL',
             'visitors' => [
-                'integer',
-                'required',
-                'min:1',
-                'max:' . $maxShift,
+                'integer', 'required', 'min:1', 'max:' . $maxShift,
                 new CommandCenterReservationRule(
                     $this->command_center_shift_id,
                     $this->reservation_date,
