@@ -43,6 +43,7 @@ class CommandCenterReservationCreateRequest extends FormRequest
             'visitors' => [
                 'integer',
                 'required',
+                'min:1',
                 'max:' . $maxShift,
                 new CommandCenterReservationRule(
                     $this->command_center_shift_id,
