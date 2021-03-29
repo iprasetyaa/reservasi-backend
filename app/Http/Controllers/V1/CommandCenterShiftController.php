@@ -7,6 +7,7 @@ use App\Http\Requests\CommandCenterShiftCreateRequest;
 use App\Http\Requests\CommandCenterShiftUpdateRequest;
 use App\Http\Resources\CommandCenterShiftResource;
 use App\Models\CommandCenterShift;
+use Illuminate\Http\Request;
 
 class CommandCenterShiftController extends Controller
 {
@@ -15,9 +16,20 @@ class CommandCenterShiftController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return CommandCenterShift::all();
+        $records = CommandCenterShift::query();
+        $sortBy = $request->input('sortBy', 'created_at');
+        $orderDirection = $request->input('orderDirection', 'desc');
+        $perPage = $request->input('perPage', 10);
+
+        //filter
+        $records = $this->filterList($request, $records);
+
+        // sort and order
+        $records = $this->sortList($sortBy, $orderDirection, $records);
+
+        return CommandCenterShiftResource::collection($records->paginate($perPage));
     }
 
     /**
@@ -69,5 +81,34 @@ class CommandCenterShiftController extends Controller
     public function destroy(CommandCenterShift $commandCenterShift)
     {
         $commandCenterShift->delete();
+    }
+
+    /**
+     * filterList
+     *
+     * @param  mixed $request
+     * @param  [Collection] $records
+     * @return Collection
+     */
+    protected function filterList(Request $request, $records)
+    {
+        if ($request->has('status')) {
+            $records->where('status', $request->status);
+        }
+
+        return $records;
+    }
+
+    /**
+     * Function to sort the list
+     *
+     * @param [String] $sortBy
+     * @param [String] $orderDirection
+     * @param [Collection] $records
+     * @return Collection
+     */
+    protected function sortList($sortBy, $orderDirection, $records)
+    {
+        return $records->orderBy($sortBy, $orderDirection);
     }
 }
