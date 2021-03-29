@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\CCReservationCreated;
-use App\Mail\CCReservationNotificationMail;
+use App\Mail\CCReservationNotificationMailPublic;
 use Illuminate\Support\Facades\Mail;
 
 class SendCCReservationEmail
@@ -26,6 +26,6 @@ class SendCCReservationEmail
      */
     public function handle(CCReservationCreated $event)
     {
-        Mail::to($event->reservation->email)->send(new CCReservationNotificationMail($event));
+        Mail::to($event->reservation->email)->send(new CCReservationNotificationMailPublic($event));
     }
 }
