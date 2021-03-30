@@ -26,16 +26,14 @@ class CommandCenterShiftRequest extends FormRequest
      */
     public function rules()
     {
-        $commanCenterShift = $this->route()->parameter('command_center_shift');
-
         return [
             'name' => [
                 'required',
-                Rule::unique('command_center_shifts')->ignore($commanCenterShift),
+                Rule::unique('command_center_shifts')->ignore($this->commanCenterShift),
             ],
             'time' => [
                 'required',
-                Rule::unique('command_center_shifts')->ignore($commanCenterShift),
+                Rule::unique('command_center_shifts')->ignore($this->commanCenterShift),
             ],
             'status' => new EnumRule(CommandCenterShiftStatusEnum::class),
             'capacity' => 'required|numeric'
