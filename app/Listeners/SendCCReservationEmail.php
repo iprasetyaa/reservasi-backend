@@ -3,8 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\CCReservationCreated;
-use App\Mail\CCReservationNotificationMail;
 use App\Mail\CCReservationNotificationMailAdmin;
+use App\Mail\CCReservationNotificationMailPublic;
 use Illuminate\Support\Facades\Mail;
 
 class SendCCReservationEmail
