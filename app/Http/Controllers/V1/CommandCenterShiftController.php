@@ -4,7 +4,6 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommandCenterShiftCreateRequest;
-use App\Http\Requests\CommandCenterShiftUpdateRequest;
 use App\Http\Resources\CommandCenterShiftResource;
 use App\Models\CommandCenterShift;
 use Illuminate\Http\Request;
@@ -12,6 +11,15 @@ use Illuminate\Http\Response;
 
 class CommandCenterShiftController extends Controller
 {
+    /**
+     * __construct
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('can:isAdmin')->except('index');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -64,7 +72,7 @@ class CommandCenterShiftController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(CommandCenterShiftUpdateRequest $request, CommandCenterShift $commandCenterShift)
+    public function update(CommandCenterShiftCreateRequest $request, CommandCenterShift $commandCenterShift)
     {
         $commandCenterShift->update($request->validated());
 

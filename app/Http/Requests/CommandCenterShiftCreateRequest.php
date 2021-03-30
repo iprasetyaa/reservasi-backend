@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Spatie\Enum\Laravel\Rules\EnumRule;
 use App\Enums\CommandCenterShiftStatusEnum;
+use Illuminate\Validation\Rule;
 
 class CommandCenterShiftCreateRequest extends FormRequest
 {
@@ -25,9 +26,17 @@ class CommandCenterShiftCreateRequest extends FormRequest
      */
     public function rules()
     {
+        $commanCenterShift = $this->route()->parameter('command_center_shift');
+
         return [
-            'name' => 'required|unique:command_center_shifts,name,NULL,id',
-            'time' => 'required|unique:command_center_shifts,time,NULL,id',
+            'name' => [
+                'required',
+                Rule::unique('command_center_shifts')->ignore($commanCenterShift),
+            ],
+            'time' => [
+                'required',
+                Rule::unique('command_center_shifts')->ignore($commanCenterShift),
+            ],
             'status' => new EnumRule(CommandCenterShiftStatusEnum::class),
             'capacity' => 'required|numeric'
         ];
