@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CommandCenterShiftCreateRequest;
+use App\Http\Requests\CommandCenterShiftRequest;
 use App\Http\Resources\CommandCenterShiftResource;
 use App\Models\CommandCenterShift;
 use Illuminate\Http\Request;
@@ -47,7 +47,7 @@ class CommandCenterShiftController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CommandCenterShiftCreateRequest $request)
+    public function store(CommandCenterShiftRequest $request)
     {
         $record = CommandCenterShift::create($request->validated());
 
@@ -72,7 +72,7 @@ class CommandCenterShiftController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(CommandCenterShiftCreateRequest $request, CommandCenterShift $commandCenterShift)
+    public function update(CommandCenterShiftRequest $request, CommandCenterShift $commandCenterShift)
     {
         $commandCenterShift->update($request->validated());
 

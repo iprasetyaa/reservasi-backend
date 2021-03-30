@@ -7,7 +7,7 @@ use Spatie\Enum\Laravel\Rules\EnumRule;
 use App\Enums\CommandCenterShiftStatusEnum;
 use Illuminate\Validation\Rule;
 
-class CommandCenterShiftCreateRequest extends FormRequest
+class CommandCenterShiftRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
