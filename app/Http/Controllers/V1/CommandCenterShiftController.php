@@ -7,6 +7,7 @@ use App\Http\Requests\CommandCenterShiftCreateRequest;
 use App\Http\Requests\CommandCenterShiftUpdateRequest;
 use App\Http\Resources\CommandCenterShiftResource;
 use App\Models\CommandCenterShift;
+use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 
 class CommandCenterShiftController extends Controller
@@ -40,9 +41,7 @@ class CommandCenterShiftController extends Controller
      */
     public function store(CommandCenterShiftCreateRequest $request)
     {
-        $record = new CommandCenterShift();
-        $record->fill($request->validated());
-        $record->save();
+        $record = CommandCenterShift::create($request->validated());
 
         return new CommandCenterShiftResource($record);
     }
