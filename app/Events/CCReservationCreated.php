@@ -17,11 +17,14 @@ class CCReservationCreated
     /**
      * Create a new event instance.
      *
+     * @param  CommandCenterReservation  $reservation
+     * @param  string  $action
      * @return void
      */
-    public function __construct(CommandCenterReservation $reservation)
+    public function __construct(CommandCenterReservation $reservation, $action = '')
     {
         $this->reservation = $reservation;
+        $this->action = $action;
     }
 
     /**

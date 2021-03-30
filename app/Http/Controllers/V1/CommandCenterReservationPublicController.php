@@ -18,7 +18,7 @@ class CommandCenterReservationPublicController extends Controller
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
         ]);
 
-        event(new CCReservationCreated($reservation));
+        event(new CCReservationCreated($reservation, 'store'));
 
         return new CCReservationResource($reservation);
     }
