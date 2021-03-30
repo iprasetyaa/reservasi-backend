@@ -32,8 +32,8 @@ class CommandCenterReservationController extends Controller
     public function index(Request $request)
     {
         $records = CommandCenterReservation::query();
-        $sortBy = $request->input('sortBy', 'reservation_date');
-        $orderBy = $request->input('orderBy', 'desc');
+        $sortBy = $request->input('sortBy', 'created_at');
+        $orderDirection = $request->input('orderDirection', 'desc');
         $perPage = $request->input('perPage', 10);
         $perPage = $this->getPaginationSize($perPage);
 
@@ -44,7 +44,7 @@ class CommandCenterReservationController extends Controller
         $records = $this->filterList($request, $records);
 
         // sort and order
-        $records = $this->sortList($sortBy, $orderBy, $records);
+        $records = $this->sortList($sortBy, $orderDirection, $records);
 
         return CCReservationResource::collection($records->paginate($perPage));
     }
@@ -131,11 +131,6 @@ class CommandCenterReservationController extends Controller
     protected function searchList(Request $request, $records)
     {
         if ($request->has('by') and $request->has('keyword')) {
-            if ($request->by == 'reservation_code') {
-                $records->where('reservation_code', $request->keyword);
-                return $records;
-            }
-
             $records->where($request->by, 'LIKE', '%' . $request->keyword . '%');
             return $records;
         }
@@ -172,12 +167,12 @@ class CommandCenterReservationController extends Controller
      *
      * @param  mixed $request
      * @param [String] $sortBy
-     * @param [String] $orderBy
+     * @param [String] $orderDirection
      * @param [Collection] $records
      * @return Collection
      */
-    protected function sortList($sortBy, $orderBy, $records)
+    protected function sortList($sortBy, $orderDirection, $records)
     {
-        return $records->orderBy($sortBy, $orderBy);
+        return $records->orderBy($sortBy, $orderDirection);
     }
 }
