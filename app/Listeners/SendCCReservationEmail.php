@@ -27,7 +27,7 @@ class SendCCReservationEmail
      */
     public function handle(CCReservationCreated $event)
     {
-        Mail::to($event->reservation->email)->send(new CCReservationNotificationMail($event));
+        Mail::to($event->reservation->email)->send(new CCReservationNotificationMailPublic($event));
 
         if ($event->action == 'store') {
             Mail::to(config('mail.admin_address'))->send(new CCReservationNotificationMailAdmin($event));
