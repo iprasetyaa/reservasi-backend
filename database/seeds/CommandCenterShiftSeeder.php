@@ -14,14 +14,14 @@ class CommandCenterShiftSeeder extends Seeder
     {
         $data = [
             [
-                'code' => 'SHIFT1',
-                'name' => '09:00 - 12:00',
+                'name' => 'SHIFT 1',
+                'time' => '09:00 - 12:00',
                 'capacity' => 20,
                 'status' => 'ACTIVE'
             ],
             [
-                'code' => 'SHIFT2',
-                'name' => '13:00 - 16:00',
+                'name' => 'SHIFT 2',
+                'time' => '13:00 - 16:00',
                 'capacity' => 20,
                 'status' => 'ACTIVE'
             ],

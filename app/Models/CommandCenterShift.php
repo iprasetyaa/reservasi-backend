@@ -10,7 +10,7 @@ class CommandCenterShift extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['code', 'name', 'status', 'capacity'];
+    protected $fillable = ['time', 'name', 'status', 'capacity'];
 
     protected $enums = [
         'status' => CommandCenterShiftStatusEnum::class,
