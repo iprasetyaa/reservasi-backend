@@ -16,6 +16,10 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 {{ $reservation->note }}
 @endif
 
+@component('mail::button', ['url' => $url])
+Lihat Reservasi
+@endcomponent
+
 Terimakasih,<br>
 {{ $from }}<br>
 Email: {{ config('mail.from.address') }}
