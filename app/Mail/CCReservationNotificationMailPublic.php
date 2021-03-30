@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class CCReservationNotificationMail extends Mailable
+class CCReservationNotificationMailPublic extends Mailable
 {
     use Queueable;
     use SerializesModels;
@@ -47,10 +47,11 @@ class CCReservationNotificationMail extends Mailable
 
     public function getContent()
     {
-        return $this->markdown('emails.ccReservationNotification')
+        return $this->markdown('emails.ccReservationNotificationPublic')
                     ->subject('[Command Center Reservation] ' . $this->subject_status)
                     ->with([
                         'from' => config('mail.from.name'),
+                        'url' => config('app.web_microsite_url') . '/cek-reservasi'
                     ]);
     }
 }
