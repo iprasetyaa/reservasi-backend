@@ -7,8 +7,8 @@ use App\Http\Requests\CommandCenterShiftCreateRequest;
 use App\Http\Requests\CommandCenterShiftUpdateRequest;
 use App\Http\Resources\CommandCenterShiftResource;
 use App\Models\CommandCenterShift;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CommandCenterShiftController extends Controller
 {
@@ -80,6 +80,8 @@ class CommandCenterShiftController extends Controller
     public function destroy(CommandCenterShift $commandCenterShift)
     {
         $commandCenterShift->delete();
+
+        return response()->json(['message' => 'deleted'], Response::HTTP_OK);
     }
 
     /**
