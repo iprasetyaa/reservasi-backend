@@ -27,7 +27,7 @@ class CommandCenterReservationCreateRequest extends FormRequest
     public function rules()
     {
         $oneMonthLater =  Carbon::now()->addMonth();
-        $shift = CommandCenterShift::find($this->command_center_shift_id);
+        $shift = CommandCenterShift::find($this->input('command_center_shift_id'));
         $maxShift = ($shift) ? $shift->capacity : config('shift.default_max_visitor');
         return [
             'name' => 'string|required|max:100',
