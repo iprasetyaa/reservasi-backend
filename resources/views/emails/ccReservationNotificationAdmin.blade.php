@@ -8,7 +8,7 @@ Data pemohon:
 - Instansi: {{ $reservation->organization_name }}
 @endif
 - Waktu: {{ date('d-m-Y', strtotime($reservation->reservation_date)) }}
-- Sesi: {{ $reservation->commandCenterShift->name }}
+- Sesi: {{ $reservation->commandCenterShift->name . ' (' . $reservation->commandCenterShift->time . ')' }}
 
 @component('mail::button', ['url' => $url])
 Lihat Reservasi
