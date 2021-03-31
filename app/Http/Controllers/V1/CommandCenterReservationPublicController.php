@@ -8,6 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CommandCenterReservationCreateRequest;
 use App\Http\Resources\CCReservationResource;
 use App\Models\CommandCenterReservation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpFoundation\Response;
 
 class CommandCenterReservationPublicController extends Controller
 {
@@ -23,8 +26,39 @@ class CommandCenterReservationPublicController extends Controller
         return new CCReservationResource($reservation);
     }
 
-    public function show(CommandCenterReservation $reservation)
+    public function show(Request $request, CommandCenterReservation $reservation)
     {
-        return new CCReservationResource($reservation);
+        $recaptchaToken = $request->header('recaptcha-token');
+
+        $isValid = $this->validateRecaptcha($recaptchaToken);
+
+        if ($isValid) {
+            return new CCReservationResource($reservation);
+        }
+
+        return response(null, Response::HTTP_FORBIDDEN);
+    }
+
+    /**
+     * Function to validate the google recaptcha
+     *
+     * @param [String] $token
+     * @return Boolean
+     */
+    protected function validateRecaptcha($token)
+    {
+        $recaptchaResponse = Http::post(
+            config('recaptcha.base_url'),
+            [
+                'query' => [
+                    'secret' => config('recaptcha.secret_key'),
+                    'response' => $token
+                ]
+            ]
+        );
+
+        $result = json_decode($recaptchaResponse);
+
+        return $result->success;
     }
 }
