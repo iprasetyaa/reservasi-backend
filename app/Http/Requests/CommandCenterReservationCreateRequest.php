@@ -47,7 +47,8 @@ class CommandCenterReservationCreateRequest extends FormRequest
                     $this->visitors,
                     $maxShift
                 )
-            ]
+            ],
+            'g-recaptcha-response' => 'required'
         ];
     }
 }
