@@ -48,7 +48,6 @@ class CommandCenterReservationCreateRequest extends FormRequest
                     $maxShift
                 )
             ],
-            'g-recaptcha-response' => 'required'
         ];
     }
 }
