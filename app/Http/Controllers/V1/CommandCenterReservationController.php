@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\CommandCenterReservation;
 use App\Enums\CommandCenterReservationStatusEnum;
 use App\Events\CCReservationCreated;
-use App\Http\Requests\CommandCenterReservationApprovalRequest;
 use App\Http\Requests\CommandCenterReservationCreateRequest;
 use App\Http\Resources\CCReservationResource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class CommandCenterReservationController extends Controller
 {
@@ -58,7 +58,7 @@ class CommandCenterReservationController extends Controller
     public function store(CommandCenterReservationCreateRequest $request)
     {
         $reservation = CommandCenterReservation::create($request->validated() + [
-            'reservation_code' => 'JCC' . time(),
+            'reservation_code' => 'JCC' . Str::upper(Str::random(4)),
             'user_id_reservation' => $request->user()->uuid,
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
         ]);

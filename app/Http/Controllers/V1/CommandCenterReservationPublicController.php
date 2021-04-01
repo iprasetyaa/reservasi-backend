@@ -11,13 +11,14 @@ use App\Models\CommandCenterReservation;
 use App\Recaptchas\GoogleRecaptcha;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Str;
 
 class CommandCenterReservationPublicController extends Controller
 {
     public function store(CommandCenterReservationCreateRequest $request)
     {
         $reservation = CommandCenterReservation::create($request->validated() + [
-            'reservation_code' => 'JCC' . time(),
+            'reservation_code' => 'JCC' . Str::upper(Str::random(4)),
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
         ]);
 

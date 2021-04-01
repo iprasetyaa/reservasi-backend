@@ -36,7 +36,7 @@ class CommandCenterShiftRequest extends FormRequest
                 Rule::unique('command_center_shifts')->ignore($this->command_center_shift),
             ],
             'status' => new EnumRule(CommandCenterShiftStatusEnum::class),
-            'capacity' => 'required|numeric'
+            'capacity' => 'required|numeric|min:0|max:1000'
         ];
     }
 }
