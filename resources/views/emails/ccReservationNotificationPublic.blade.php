@@ -9,7 +9,7 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 - Instansi: {{ $reservation->organization_name }}
 @endif
 - Waktu: {{ date('d-m-Y', strtotime($reservation->reservation_date)) }}
-- Sesi: {{ $reservation->commandCenterShift->name }}
+- Sesi: {{ $reservation->commandCenterShift->full_name }}
 - Status: {{ __('message.' . strtolower($reservation->approval_status)) }}
 
 @if($reservation->note)
