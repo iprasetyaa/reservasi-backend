@@ -8,13 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CommandCenterReservationCreateRequest;
 use App\Http\Resources\CCReservationResource;
 use App\Models\CommandCenterReservation;
+use Illuminate\Support\Str;
 
 class CommandCenterReservationPublicController extends Controller
 {
     public function store(CommandCenterReservationCreateRequest $request)
     {
         $reservation = CommandCenterReservation::create($request->validated() + [
-            'reservation_code' => 'JCC' . time(),
+            'reservation_code' => 'JCC' . Str::upper(Str::random(4)),
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
         ]);
 
