@@ -33,10 +33,8 @@ class CommandCenterReservationPublicController extends Controller
 
         $recaptcha = new GoogleRecaptcha(['token' => $recaptchaToken]);
 
-        if ($recaptcha->response->success) {
-            return new CCReservationResource($reservation);
-        }
+        abort_if(! $recaptcha->response->success, Response::HTTP_FORBIDDEN);
 
-        return response(null, Response::HTTP_FORBIDDEN);
+        return new CCReservationResource($reservation);
     }
 }
