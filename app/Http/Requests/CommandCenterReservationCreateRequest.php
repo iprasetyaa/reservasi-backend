@@ -47,7 +47,7 @@ class CommandCenterReservationCreateRequest extends FormRequest
                     $this->visitors,
                     $maxShift
                 )
-            ],
+            ]
         ];
     }
 }

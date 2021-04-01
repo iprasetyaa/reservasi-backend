@@ -14,11 +14,7 @@ class GoogleRecaptcha
      */
     public function __construct($params)
     {
-        $response = Http::post(
-            config('recaptcha.base_url')
-                . '?secret=' . config('recaptcha.secret_key')
-                . '&response=' . $params['token']
-        );
+        $response = Http::post(config('recaptcha.base_url') . $params['token']);
 
         $this->response = json_decode($response);
     }
