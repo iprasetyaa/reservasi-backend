@@ -2,7 +2,7 @@
 
 namespace App\Recaptchas;
 
-use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 class GoogleRecaptcha
 {
@@ -14,8 +14,16 @@ class GoogleRecaptcha
      */
     public function __construct($params)
     {
-        $response = Http::post(config('recaptcha.base_url') . $params['token']);
+        $client = new Client();
 
-        $this->response = json_decode($response);
+        $response = $client->request('POST', config('recaptcha.base_url'),
+        [
+            'query' => [
+                'secret' => config('recaptcha.secret_key'),
+                'response' => $params['token']
+            ]
+        ]);
+
+        $this->response = json_decode($response->getBody()->getContents());
     }
 }
