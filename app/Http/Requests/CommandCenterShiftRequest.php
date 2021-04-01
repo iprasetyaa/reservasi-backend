@@ -29,14 +29,18 @@ class CommandCenterShiftRequest extends FormRequest
         return [
             'name' => [
                 'required',
-                Rule::unique('command_center_shifts')->ignore($this->command_center_shift),
+                Rule::unique('command_center_shifts')->ignore($this->command_center_shift)->where(function ($query) {
+                    return $query->where('deleted_at', null);
+                }),
             ],
             'time' => [
                 'required',
-                Rule::unique('command_center_shifts')->ignore($this->command_center_shift),
+                Rule::unique('command_center_shifts')->ignore($this->command_center_shift)->where(function ($query) {
+                    return $query->where('deleted_at', null);
+                }),
             ],
             'status' => new EnumRule(CommandCenterShiftStatusEnum::class),
-            'capacity' => 'required|numeric|min:0|max:1000'
+            'capacity' => 'required|numeric'
         ];
     }
 }
