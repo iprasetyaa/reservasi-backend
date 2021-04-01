@@ -17,6 +17,8 @@ class CommandCenterReservationPublicController extends Controller
 {
     public function store(CommandCenterReservationCreateRequest $request)
     {
+        $this->recaptchaValidation($request);
+
         $reservation = CommandCenterReservation::create($request->validated() + [
             'reservation_code' => 'JCC' . Str::upper(Str::random(4)),
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
@@ -29,12 +31,22 @@ class CommandCenterReservationPublicController extends Controller
 
     public function show(Request $request, CommandCenterReservation $reservation)
     {
+        $this->recaptchaValidation($request);
+
+        return new CCReservationResource($reservation);
+    }
+
+    /**
+     * Google recaptcha validation method
+     *
+     * @param  Request $request
+     */
+    public function recaptchaValidation($request)
+    {
         $recaptchaToken = $request->header('recaptcha-token');
 
         $recaptcha = new GoogleRecaptcha(['token' => $recaptchaToken]);
 
         abort_if(! $recaptcha->response->success, Response::HTTP_FORBIDDEN);
-
-        return new CCReservationResource($reservation);
     }
 }
