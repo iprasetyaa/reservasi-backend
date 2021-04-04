@@ -20,13 +20,16 @@ class GoogleRecaptcha
 
         $token = $request->header('recaptcha-token');
 
-        $response = $client->request('POST', config('recaptcha.base_url'),
-        [
-            'query' => [
-                'secret' => config('recaptcha.secret_key'),
-                'response' => $token
+        $response = $client->request(
+            'POST',
+            config('recaptcha.base_url'),
+            [
+                'query' => [
+                    'secret' => config('recaptcha.secret_key'),
+                    'response' => $token
+                ]
             ]
-        ]);
+        );
 
         $response = json_decode($response->getBody(), true);
 
