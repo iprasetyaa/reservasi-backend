@@ -12,7 +12,7 @@ class GoogleRecaptcha
      * @param [String] $token
      * @return Boolean
      */
-    public function __construct($params)
+    public function __construct($token)
     {
         $client = new Client();
 
@@ -20,7 +20,7 @@ class GoogleRecaptcha
         [
             'query' => [
                 'secret' => config('recaptcha.secret_key'),
-                'response' => $params['token']
+                'response' => $token
             ]
         ]);
 

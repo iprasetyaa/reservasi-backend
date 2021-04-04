@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(GoogleRecaptcha::class, function ($params) {
+        $this->app->bind(GoogleRecaptcha::class, function ($app, $params) {
             return new GoogleRecaptcha($params['token']);
         });
     }

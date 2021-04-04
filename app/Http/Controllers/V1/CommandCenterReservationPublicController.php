@@ -10,6 +10,7 @@ use App\Http\Resources\CCReservationResource;
 use App\Models\CommandCenterReservation;
 use App\Recaptchas\GoogleRecaptcha;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Str;
 
@@ -45,7 +46,7 @@ class CommandCenterReservationPublicController extends Controller
     {
         $recaptchaToken = $request->header('recaptcha-token');
 
-        $recaptcha = new GoogleRecaptcha(['token' => $recaptchaToken]);
+        $recaptcha = App::makeWith(GoogleRecaptcha::class, ['token' => $recaptchaToken]);
 
         abort_if(! $recaptcha->response->success, Response::HTTP_FORBIDDEN);
     }
