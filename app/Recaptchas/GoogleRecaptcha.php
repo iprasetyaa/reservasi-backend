@@ -11,7 +11,7 @@ class GoogleRecaptcha
     /**
      * Function to validate the google recaptcha
      *
-     * @param Collection $request
+     * @param Request $request
      * @return Boolean
      */
     public function __construct($request)
