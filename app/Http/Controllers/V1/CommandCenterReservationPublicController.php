@@ -15,8 +15,6 @@ class CommandCenterReservationPublicController extends Controller
 {
     public function store(CommandCenterReservationCreateRequest $request)
     {
-        // App::makeWith(GoogleRecaptcha::class, ['request' => $request]);
-
         $reservation = CommandCenterReservation::create($request->validated() + [
             'reservation_code' => 'JCC' . Str::upper(Str::random(4)),
             'approval_status' => CommandCenterReservationStatusEnum::NOT_YET_APPROVED(),
