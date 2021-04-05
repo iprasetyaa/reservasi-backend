@@ -3,22 +3,20 @@
 namespace App\Recaptchas;
 
 use GuzzleHttp\Client;
-use Symfony\Component\HttpFoundation\Response;
+use stdClass;
 
 class GoogleRecaptcha
 {
-    protected $response;
+    public $response;
     /**
      * Function to validate the google recaptcha
      *
      * @param Request $request
      * @return Boolean
      */
-    public function __construct($request)
+    public function __construct($token)
     {
         $client = new Client();
-
-        $token = $request->header('recaptcha-token');
 
         $response = $client->request(
             'POST',
@@ -31,8 +29,6 @@ class GoogleRecaptcha
             ]
         );
 
-        $response = json_decode($response->getBody(), true);
-
-        abort_if(! $response['success'], Response::HTTP_FORBIDDEN, $response['error-codes'][0]);
+        $this->response = json_decode($response->getBody(), true);
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\CommandCenterReservationRule;
 use Carbon\Carbon;
 use App\Models\CommandCenterShift;
+use App\Rules\GoogelRecaptchaRule;
 
 class CommandCenterReservationCreateRequest extends FormRequest
 {
@@ -47,7 +48,24 @@ class CommandCenterReservationCreateRequest extends FormRequest
                     $this->visitors,
                     $maxShift
                 )
+            ],
+            'recaptcha' => [
+                new GoogelRecaptchaRule($this->recaptcha)
             ]
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $recaptchaToken = $this->header('recaptcha-token');
+
+        $this->merge([
+            'recaptcha' => $recaptchaToken,
+        ]);
     }
 }
