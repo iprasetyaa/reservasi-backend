@@ -3,7 +3,6 @@
 namespace App\Recaptchas;
 
 use GuzzleHttp\Client;
-use stdClass;
 
 class GoogleRecaptcha
 {
