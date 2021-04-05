@@ -122,6 +122,7 @@ return [
     'asset_modified_time' => 'reservation data may not be edited
         if the current time is less than 30 minutes from the promised time',
     'quota_full' => 'Quota visit for this shift is full',
+    'invalid_recaptcha' => 'Invalid recaptcha',
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

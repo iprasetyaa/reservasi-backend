@@ -39,6 +39,6 @@ class GoogelRecaptchaRule implements Rule
      */
     public function message()
     {
-        return $this->recaptcha->response['error-codes'][0];
+        return __('validation.invalid_recaptcha');
     }
 }
