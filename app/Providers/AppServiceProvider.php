@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Recaptchas\GoogleRecaptcha;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,9 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(GoogleRecaptcha::class, function ($params) {
-            return new GoogleRecaptcha($params['token']);
-        });
+        //
     }
 
     /**
