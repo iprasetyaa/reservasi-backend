@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Enums\CommandCenterReservationStatusEnum;
 use App\Events\CCReservationCreated;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -34,10 +35,10 @@ class CCReservationNotificationMailPublic extends Mailable
     public function build()
     {
         switch ($this->approval_status) {
-            case "ALREADY_APPROVED":
+            case CommandCenterReservationStatusEnum::ALREADY_APPROVED():
                 $this->subject_status = __('message.mail_accepted');
                 break;
-            case "REJECTED":
+            case CommandCenterReservationStatusEnum::REJECTED():
                 $this->subject_status = __('message.mail_rejected');
                 break;
         }
