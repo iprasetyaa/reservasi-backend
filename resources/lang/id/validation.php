@@ -73,4 +73,5 @@ return [
     'asset_modified_time' => 'data reservasi tidak dapat diedit
         jika waktu saat ini kurang dari 30 menit dari waktu yang dijanjikan',
     'quota_full' => 'Kuota kunjungan pada shift tersebut sudah terpenuhi',
+    'invalid_recaptcha' => 'Recaptcha tidak valid',
 ];
