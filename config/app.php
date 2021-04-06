@@ -56,6 +56,8 @@ return [
 
     'web_url' => env('APP_WEB_URL', 'http://localhost:3000'),
 
+    'web_microsite_url' => env('APP_WEB_MICROSITE_URL', 'http://localhost:3000'),
+
     'asset_url' => env('ASSET_URL', null),
 
     /*
@@ -82,7 +84,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'id',
 
     /*
     |--------------------------------------------------------------------------

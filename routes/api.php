@@ -14,6 +14,18 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::get('/', 'HomeController');
+Route::group(['namespace' => 'V1'], function () {
+    Route::get('command-center-availability', 'CommandCenterAvailabilityController')->name('command-center-availability');
+    Route::apiResource('public/command-center-reservation', 'CommandCenterReservationPublicController')
+        ->only('store');
+    Route::get('public/command-center-reservation/{reservation:reservation_code}', 'CommandCenterReservationPublicController@show');
+    Route::apiResource('close-days', 'CommandCenterCloseDateController')
+        ->only(['index', 'show']);
+    Route::apiResource('command-center-shift', 'CommandCenterShiftController')
+        ->only('index');
+});
+
+
 
 Route::group(['middleware' => ['auth:api']], function () {
     Route::get('user', 'Settings\ProfileController@index')->name('user.get');
@@ -22,6 +34,12 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get('reservation/list', 'ReservationListAllController')->name('reservation.list');
         Route::apiResource('asset', 'AssetController');
         Route::apiResource('reservation', 'ReservationController');
+        Route::put('command-center-reservation/{command_center_reservation}/approval', 'CommandCenterReservationApprovalController');
+        Route::apiResource('command-center-reservation', 'CommandCenterReservationController');
+        Route::apiResource('command-center-shift', 'CommandCenterShiftController')
+            ->except('index');
+        Route::apiResource('close-days', 'CommandCenterCloseDateController')
+            ->only(['store', 'update', 'destroy']);
         Route::apiResource('reserved', 'ReservedController')
             ->only(['index', 'update'])
             ->parameters([
