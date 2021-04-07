@@ -19,8 +19,9 @@ Route::group(['namespace' => 'V1'], function () {
     Route::apiResource('public/command-center-reservation', 'CommandCenterReservationPublicController')
         ->only('store');
     Route::get('public/command-center-reservation/{reservation:reservation_code}', 'CommandCenterReservationPublicController@show');
+    Route::get('close-days/dates', 'CommandCenterCloseDaysListController');
     Route::apiResource('close-days', 'CommandCenterCloseDateController')
-        ->only(['index', 'show']);
+    ->only(['index', 'show']);
     Route::apiResource('command-center-shift', 'CommandCenterShiftController')
         ->only('index');
 });
