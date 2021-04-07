@@ -10,7 +10,7 @@ use Carbon\Carbon;
 class CommandCenterCloseDaysListController extends Controller
 {
     /**
-     * Send disabled days, dates only.
+     * List disabled days, dates only.
      *
      * @return \Illuminate\Http\Response
      */
