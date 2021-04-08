@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CCCloseDateListResource extends JsonResource
@@ -15,8 +14,6 @@ class CCCloseDateListResource extends JsonResource
      */
     public function toArray($request)
     {
-        $date = Carbon::parse($this->date)->format('Y-m-d');
-
-        return $date;
+        return  $this->date->format('Y-m-d');
     }
 }
