@@ -39,5 +39,4 @@ class CommandCenterCloseDaysListController extends Controller
 
         return $records;
     }
-
 }
