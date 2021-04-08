@@ -22,7 +22,7 @@ class CommandCenterCloseDate extends Model
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopefilterAMonth($query)
+    public function scopeFilterAMonth($query)
     {
         $from = Carbon::now()->toDateString();
         $to = Carbon::now()->addMonth();
