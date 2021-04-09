@@ -12,6 +12,10 @@ class CommandCenterCloseDate extends Model
         'note',
     ];
 
+    protected $dates = [
+        'date'
+    ];
+
     protected $casts = [
         'date' => 'datetime:Y-m-d'
     ];
