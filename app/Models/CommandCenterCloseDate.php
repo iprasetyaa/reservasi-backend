@@ -16,10 +16,6 @@ class CommandCenterCloseDate extends Model
         'date'
     ];
 
-    protected $casts = [
-        'date' => 'datetime:Y-m-d'
-    ];
-
     /**
      * Scope a query to only include dates within a month from now.
      *
