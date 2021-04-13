@@ -10,8 +10,9 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 @if($reservation->join_url)
 - Host Key: {{ $hostkey }}
 @endif
-- Tanggal dan Waktu Kegiatan: {{ $reservation->start_time }} sd. {{ $reservation->end_time }}
-- Tanggal Dibuat: {{ $reservation->created_at }}
+- Tanggal dan Waktu Kegiatan: {{ $reservation->start_time->format('d-m-Y H:i') }} sd. {{ $reservation->end_time->format('d-m-Y H:i') }}
+- Tanggal Dibuat: {{ $reservation->created_at->format('d-m-Y') }}
+
 @if($reservation->join_url)
 - Link Invitation Room: {{ $reservation->join_url }}
 @endif
