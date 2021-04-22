@@ -20,7 +20,7 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 Lihat Reservasi
 @endcomponent
 
-Terimakasih,<br>
+Terima kasih,<br>
 {{ $from }}<br>
 Email: {{ config('mail.from.address') }}
 @endcomponent

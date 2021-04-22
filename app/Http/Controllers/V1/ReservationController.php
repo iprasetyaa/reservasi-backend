@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\V1;
 
 use App\Enums\ReservationStatusEnum;
+use App\Enums\ResourceTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Events\AfterReservation;
+use App\Events\AfterReservationCreated;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ReservationRequest;
+use App\Http\Requests\CreateReservationRequest;
+use App\Http\Requests\EditReservationRequest;
 use App\Http\Resources\ReservationResource;
 use App\Models\Asset;
 use App\Models\Reservation;
@@ -64,24 +67,31 @@ class ReservationController extends Controller
      * @param  mixed $request
      * @return void
      */
-    public function store(ReservationRequest $request)
+    public function store(CreateReservationRequest $request)
     {
-        $asset = Asset::find($request->asset_id);
-
         try {
             DB::beginTransaction();
 
-            $reservation = Reservation::create($request->validated() + [
-                'user_id_reservation' => $request->user()->uuid,
-                'user_fullname' => $request->user()->name,
-                'username' => $request->user()->username,
-                'email' => $request->user()->email,
-                'asset_name' => $asset->name,
-                'asset_description' => $asset->description,
-                'approval_status' => ReservationStatusEnum::already_approved(),
-            ]);
+            $assets = Asset::whereIn('id', $request->asset_ids)->get();
+            $reservations = [];
 
-            event(new AfterReservation($reservation, $asset));
+            foreach ($assets as $asset) {
+                $reservation = Reservation::create($request->validated() + [
+                    'user_id_reservation' => $request->user()->uuid,
+                    'user_fullname' => $request->user()->name,
+                    'username' => $request->user()->username,
+                    'email' => $request->user()->email,
+                    'asset_name' => $asset->name,
+                    'asset_id' => $asset->id,
+                    'asset_description' => $asset->description,
+                    'approval_status' => ReservationStatusEnum::already_approved(),
+                ]);
+
+                event(new AfterReservation($reservation, $asset));
+                array_push($reservations, $reservation->id);
+            }
+
+            event(new AfterReservationCreated($reservations));
 
             DB::commit();
         } catch (\Exception $th) {
@@ -98,7 +108,7 @@ class ReservationController extends Controller
      * @param  mixed $request
      * @return void
      */
-    public function update(ReservationRequest $request, Reservation $reservation)
+    public function update(EditReservationRequest $request, Reservation $reservation)
     {
         $asset = Asset::find($request->asset_id);
         $reservation->update($request->validated() + [
@@ -107,6 +117,10 @@ class ReservationController extends Controller
             'user_id_updated' => $request->user()->uuid
         ]);
         event(new AfterReservation($reservation, $asset));
+
+        $reservations = [$reservation->id];
+        event(new AfterReservationCreated($reservations));
+
         return response()->json(null, Response::HTTP_CREATED);
     }
 
@@ -179,7 +193,7 @@ class ReservationController extends Controller
      * @param  mixed $sortBy
      * @param  mixed $orderBy
      * @param  mixed $records
-     * @return void
+     * @return Collection
      */
     protected function sortBy($sortBy, $orderBy, $records)
     {
