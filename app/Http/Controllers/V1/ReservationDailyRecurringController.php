@@ -42,7 +42,7 @@ class ReservationDailyRecurringController extends Controller
             while ($date->lte($endDate)) {
                 $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
-                if (!$this->isAvailableAsset($request->asset_id, $timeDetails)) {
+                if (!$this->isAvailableAsset($request->asset_ids, $timeDetails)) {
                     return response(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
 
@@ -74,24 +74,27 @@ class ReservationDailyRecurringController extends Controller
      */
     protected function createReservation($request, $timeDetails, $count = 0)
     {
-        $asset = Asset::findOrFail($request->asset_id);
+        $assets = Asset::whereIn('id', $request->asset_ids)->get();
 
         $date = Carbon::parse($timeDetails['date']);
 
         if (in_array($date->dayOfWeek, $request->days)) {
-            $reservation = Reservation::create($request->validated() + $timeDetails + [
-                'user_id_reservation' => $request->user()->uuid,
-                'user_fullname' => $request->user()->name,
-                'username' => $request->user()->username,
-                'email' => $request->user()->email,
-                'asset_name' => $asset->name,
-                'asset_description' => $asset->description,
-                'approval_status' => ReservationStatusEnum::already_approved()
-            ]);
+            foreach ($assets as $asset) {
+                $reservation = Reservation::create($request->validated() + $timeDetails + [
+                    'user_id_reservation' => $request->user()->uuid,
+                    'user_fullname' => $request->user()->name,
+                    'username' => $request->user()->username,
+                    'email' => $request->user()->email,
+                    'asset_id' => $asset->id,
+                    'asset_name' => $asset->name,
+                    'asset_description' => $asset->description,
+                    'approval_status' => ReservationStatusEnum::already_approved()
+                ]);
 
-            event(new AfterReservation($reservation, $asset));
+                event(new AfterReservation($reservation, $asset));
 
-            $count += 1;
+                $count += 1;
+            }
         }
 
         return $count;
@@ -120,9 +123,9 @@ class ReservationDailyRecurringController extends Controller
      * @param  [Array] $timeDetails
      * @return Boolean
      */
-    protected function isAvailableAsset($asset_id, $timeDetails)
+    protected function isAvailableAsset($asset_ids, $timeDetails)
     {
-        return Reservation::where('asset_id', $asset_id)
+        return Reservation::whereIn('asset_id', $asset_ids)
             ->validateTime((object) $timeDetails)
             ->alreadyApproved()
             ->doesntExist();
