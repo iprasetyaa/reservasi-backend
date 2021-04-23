@@ -4,11 +4,13 @@ namespace App\Http\Controllers\V1;
 
 use App\Enums\ReservationStatusEnum;
 use App\Events\AfterReservation;
+use App\Events\AfterReservationCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRecurringRequest;
 use App\Models\Asset;
 use App\Models\Reservation;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,36 +34,22 @@ class ReservationDailyRecurringController extends Controller
      */
     public function __invoke(ReservationRecurringRequest $request)
     {
-        $date = Carbon::parse($request->start_date);
-        $endDate = Carbon::parse($request->end_date);
-        $reservationCreated = 0;
-
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
+            $reservationCreated = $this->storeReservation($request);
 
-            while ($date->lte($endDate)) {
-                $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
-
-                if (!$this->isAvailableAsset($request->asset_ids, $timeDetails)) {
-                    return response(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])], Response::HTTP_UNPROCESSABLE_ENTITY);
-                }
-
-                $reservationCreated += $this->createReservation($request, $timeDetails);
-
-                $date->addDays(1);
+            if (!count($reservationCreated)) {
+                return $this->unprocessableEntity(['errors' => __('message.no_reservation')]);
             }
 
-            if ($reservationCreated === 0) {
-                return response(['errors' => __('message.no_reservation')], Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
+            event(new AfterReservationCreated(Arr::first($reservationCreated)));
 
             DB::commit();
+            return response(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
             DB::rollback();
             return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return response(null, Response::HTTP_CREATED);
     }
 
     /**
@@ -72,12 +60,13 @@ class ReservationDailyRecurringController extends Controller
      * @param  Int $count
      * @return Int
      */
-    protected function createReservation($request, $timeDetails, $count = 0)
+    protected function createReservation($request, $timeDetails)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
 
         $date = Carbon::parse($timeDetails['date']);
 
+        $reservations = [];
         if (in_array($date->dayOfWeek, $request->days)) {
             foreach ($assets as $asset) {
                 $reservation = Reservation::create($request->validated() + $timeDetails + [
@@ -91,13 +80,12 @@ class ReservationDailyRecurringController extends Controller
                     'approval_status' => ReservationStatusEnum::already_approved()
                 ]);
 
+                array_push($reservations, $reservation->id);
                 event(new AfterReservation($reservation, $asset));
-
-                $count += 1;
             }
         }
 
-        return $count;
+        return $reservations;
     }
 
     /**
@@ -129,5 +117,46 @@ class ReservationDailyRecurringController extends Controller
             ->validateTime((object) $timeDetails)
             ->alreadyApproved()
             ->doesntExist();
+    }
+
+    /**
+     * unprocessableEntity
+     *
+     * @param  mixed $message
+     * @return void
+     */
+    protected function unprocessableEntity($message)
+    {
+        return response($message, Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    /**
+     * storeReccuringDay
+     *
+     * @param  mixed $request
+     * @return void
+     */
+    protected function storeReservation($request)
+    {
+        $date = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+        $reservationCreated = [];
+
+        while ($date->lte($endDate)) {
+            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+
+            if (!$this->isAvailableAsset($request->asset_ids, $timeDetails)) {
+                return $this->unprocessableEntity(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])]);
+            }
+
+            $reservation = $this->createReservation($request, $timeDetails);
+            if (count($reservation)) {
+                $reservationCreated[] = $reservation;
+            }
+
+            $date->addDays(1);
+        }
+
+        return $reservationCreated;
     }
 }
