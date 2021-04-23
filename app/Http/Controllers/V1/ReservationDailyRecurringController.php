@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Enums\ReservationStatusEnum;
 use App\Events\AfterReservation;
+use App\Events\AfterReservationCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRecurringRequest;
 use App\Models\Asset;
@@ -39,6 +40,7 @@ class ReservationDailyRecurringController extends Controller
         try {
             DB::beginTransaction();
 
+            $index = 0;
             while ($date->lte($endDate)) {
                 $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
@@ -46,7 +48,7 @@ class ReservationDailyRecurringController extends Controller
                     return response(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
 
-                $reservationCreated += $this->createReservation($request, $timeDetails);
+                $reservationCreated += $this->createReservation($request, $timeDetails, $index++);
 
                 $date->addDays(1);
             }
@@ -72,13 +74,14 @@ class ReservationDailyRecurringController extends Controller
      * @param  Int $count
      * @return Int
      */
-    protected function createReservation($request, $timeDetails, $count = 0)
+    protected function createReservation($request, $timeDetails, $index, $count = 0)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
 
         $date = Carbon::parse($timeDetails['date']);
 
         if (in_array($date->dayOfWeek, $request->days)) {
+            $reservations = [];
             foreach ($assets as $asset) {
                 $reservation = Reservation::create($request->validated() + $timeDetails + [
                     'user_id_reservation' => $request->user()->uuid,
@@ -91,9 +94,15 @@ class ReservationDailyRecurringController extends Controller
                     'approval_status' => ReservationStatusEnum::already_approved()
                 ]);
 
+                array_push($reservations, $reservation->id);
                 event(new AfterReservation($reservation, $asset));
 
                 $count += 1;
+            }
+
+            //send first item with email (temporary logic)
+            if ($index == 1) {
+                event(new AfterReservationCreated($reservations));
             }
         }
 
