@@ -10,6 +10,7 @@ use App\Http\Requests\ReservationRecurringRequest;
 use App\Models\Asset;
 use App\Models\Reservation;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,27 +36,32 @@ class ReservationDailyRecurringController extends Controller
     {
         $date = Carbon::parse($request->start_date);
         $endDate = Carbon::parse($request->end_date);
-        $reservationCreated = 0;
+        $reservationCreated = [];
 
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
 
-            $index = 0;
             while ($date->lte($endDate)) {
                 $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
                 if (!$this->isAvailableAsset($request->asset_ids, $timeDetails)) {
-                    return response(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    return $this->unprocessableEntity(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])]);
                 }
 
-                $reservationCreated += $this->createReservation($request, $timeDetails, $index++);
+                $reservation = $this->createReservation($request, $timeDetails);
+
+                if (count($reservation)) {
+                    $reservationCreated[] = $reservation;
+                }
 
                 $date->addDays(1);
             }
 
-            if ($reservationCreated === 0) {
-                return response(['errors' => __('message.no_reservation')], Response::HTTP_UNPROCESSABLE_ENTITY);
+            if (!count($reservationCreated)) {
+                return $this->unprocessableEntity(['errors' => __('message.no_reservation')]);
             }
+
+            event(new AfterReservationCreated([Arr::first($reservationCreated)]));
 
             DB::commit();
         } catch (\Exception $e) {
@@ -74,14 +80,14 @@ class ReservationDailyRecurringController extends Controller
      * @param  Int $count
      * @return Int
      */
-    protected function createReservation($request, $timeDetails, $index, $count = 0)
+    protected function createReservation($request, $timeDetails)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
 
         $date = Carbon::parse($timeDetails['date']);
 
+        $reservations = [];
         if (in_array($date->dayOfWeek, $request->days)) {
-            $reservations = [];
             foreach ($assets as $asset) {
                 $reservation = Reservation::create($request->validated() + $timeDetails + [
                     'user_id_reservation' => $request->user()->uuid,
@@ -96,17 +102,10 @@ class ReservationDailyRecurringController extends Controller
 
                 array_push($reservations, $reservation->id);
                 event(new AfterReservation($reservation, $asset));
-
-                $count += 1;
-            }
-
-            //send first item with email (temporary logic)
-            if ($index == 1) {
-                event(new AfterReservationCreated($reservations));
             }
         }
 
-        return $count;
+        return $reservations;
     }
 
     /**
@@ -138,5 +137,16 @@ class ReservationDailyRecurringController extends Controller
             ->validateTime((object) $timeDetails)
             ->alreadyApproved()
             ->doesntExist();
+    }
+
+    /**
+     * unprocessableEntity
+     *
+     * @param  mixed $message
+     * @return void
+     */
+    protected function unprocessableEntity($message)
+    {
+        return response($message, Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }
