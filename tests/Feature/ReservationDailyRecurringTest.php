@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Events\AfterReservation;
 use App\Models\Asset;
 use App\User;
 use Carbon\Carbon;
@@ -29,12 +30,13 @@ class ReservationDailyRecurringTest extends TestCase
 
     public function testStoreDailyRecurringReservation()
     {
+        $this->expectsEvents(AfterReservation::class);
         // 1. Mocking data
         $employee = $this->employee;
         $data = [
             'title' => 'test',
             'description' => 'testing phpunit',
-            'asset_id' => $this->asset->id,
+            'asset_ids' => [$this->asset->id],
             'start_date' => Carbon::now()->format('Y-m-d'),
             'end_date' => Carbon::now()->addDays(7)->format('Y-m-d'),
             'from' => Carbon::now()->format('H:i:s'),
