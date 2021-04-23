@@ -45,12 +45,11 @@ class ReservationDailyRecurringController extends Controller
             event(new AfterReservationCreated(Arr::first($reservationCreated)));
 
             DB::commit();
+            return response(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
             DB::rollback();
             return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return response(null, Response::HTTP_CREATED);
     }
 
     /**
