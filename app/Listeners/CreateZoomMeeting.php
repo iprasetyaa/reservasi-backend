@@ -37,6 +37,11 @@ class CreateZoomMeeting
                 'type' => '2',
                 'start_time' => $reservation->start_time,
                 'timezone' => 'Asia/Jakarta',
+                'password' => '1S4#@5^',
+                'setting' => [
+                    'join_before_host' => true,
+                    'jbh_time' => 0,
+                ]
             ]);
 
             // Update join_url from this reservation
