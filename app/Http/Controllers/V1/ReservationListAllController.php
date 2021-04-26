@@ -20,7 +20,7 @@ class ReservationListAllController extends Controller
         $month = $request->input('month', date('m'));
         $year = $request->input('year', date('Y'));
 
-        $records = Reservation::whereMonth('date', $month)
+        $records = Reservation::whereMonth('date', '>=', $month)
             ->whereYear('date', $year)
             ->get();
 
