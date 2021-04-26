@@ -40,6 +40,7 @@ class CreateZoomMeeting
                 'password' => '1S4#@5^',
                 'setting' => [
                     'join_before_host' => true,
+                    'auto_recording' => 'cloud',
                     'jbh_time' => 0,
                 ]
             ]);
