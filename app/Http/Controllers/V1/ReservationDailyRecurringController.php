@@ -38,15 +38,19 @@ class ReservationDailyRecurringController extends Controller
         try {
             $reservationCreated = $this->storeReservation($request);
 
-            if (!count($reservationCreated)) {
-                return $this->unprocessableEntity(['errors' => __('message.no_reservation')]);
-            }
+            abort_if(
+                !count($reservationCreated),
+                $this->unprocessableEntity(['errors' => __('message.no_reservation')])
+            );
 
             event(new AfterReservationCreated(Arr::first($reservationCreated)));
 
             DB::commit();
             return response(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
+            echo $e;
+            die;
+
             DB::rollback();
             return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -145,9 +149,10 @@ class ReservationDailyRecurringController extends Controller
         while ($date->lte($endDate)) {
             $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
-            if (!$this->isAvailableAsset($request->asset_ids, $timeDetails)) {
-                return $this->unprocessableEntity(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])]);
-            }
+            abort_if(
+                !$this->isAvailableAsset($request->asset_ids, $timeDetails),
+                $this->unprocessableEntity(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])])
+            );
 
             $reservation = $this->createReservation($request, $timeDetails);
             if (count($reservation)) {
