@@ -40,7 +40,8 @@ class ReservationDailyRecurringController extends Controller
 
             abort_if(
                 !count($reservationCreated),
-                $this->unprocessableEntity(['errors' => __('message.no_reservation')])
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                __('message.no_reservation')
             );
 
             event(new AfterReservationCreated(Arr::first($reservationCreated)));
@@ -121,17 +122,6 @@ class ReservationDailyRecurringController extends Controller
     }
 
     /**
-     * unprocessableEntity
-     *
-     * @param  mixed $message
-     * @return void
-     */
-    protected function unprocessableEntity($message)
-    {
-        return response($message, Response::HTTP_UNPROCESSABLE_ENTITY);
-    }
-
-    /**
      * storeReccuringDay
      *
      * @param  mixed $request
@@ -148,7 +138,8 @@ class ReservationDailyRecurringController extends Controller
 
             abort_if(
                 !$this->isAvailableAsset($request->asset_ids, $timeDetails),
-                $this->unprocessableEntity(['errors' => __('validation.asset_reserved', ['attribute' => 'asset_id'])])
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                __('validation.asset_reserved', ['attribute' => 'asset_id'])
             );
 
             $reservation = $this->createReservation($request, $timeDetails);
