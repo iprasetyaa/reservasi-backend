@@ -17,11 +17,9 @@ class ReservationListAllController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $month = $request->input('month', date('m'));
         $year = $request->input('year', date('Y'));
 
-        $records = Reservation::whereMonth('date', $month)
-            ->whereYear('date', $year)
+        $records = Reservation::whereYear('date', $year)
             ->get();
 
         return ReservationResource::collection($records);
