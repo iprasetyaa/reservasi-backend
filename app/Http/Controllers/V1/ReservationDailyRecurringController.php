@@ -5,6 +5,8 @@ namespace App\Http\Controllers\V1;
 use App\Enums\ReservationStatusEnum;
 use App\Events\AfterReservation;
 use App\Events\AfterReservationCreated;
+use App\Exceptions\NoReservationOccurenceException;
+use App\Exceptions\NotAvailableAssetException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRecurringRequest;
 use App\Models\Asset;
@@ -38,16 +40,17 @@ class ReservationDailyRecurringController extends Controller
         try {
             $reservationCreated = $this->storeReservation($request);
 
-            abort_if(
-                !count($reservationCreated),
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-                __('message.no_reservation')
-            );
+            throw_if(!count($reservationCreated), new NoReservationOccurenceException());
 
             event(new AfterReservationCreated(Arr::first($reservationCreated)));
 
             DB::commit();
             return response(null, Response::HTTP_CREATED);
+        } catch (NoReservationOccurenceException $e) {
+            throw $e->validationException();
+        } catch (NotAvailableAssetException $e) {
+            DB::rollback();
+            throw $e->validationException();
         } catch (\Exception $e) {
             DB::rollback();
             return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -136,13 +139,10 @@ class ReservationDailyRecurringController extends Controller
         while ($date->lte($endDate)) {
             $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
-            abort_if(
-                !$this->isAvailableAsset($request->asset_ids, $timeDetails),
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-                __('validation.asset_reserved', ['attribute' => 'asset_id'])
-            );
+            throw_if(!$this->isAvailableAsset($request->asset_ids, $timeDetails), new NotAvailableAssetException());
 
             $reservation = $this->createReservation($request, $timeDetails);
+
             if (count($reservation)) {
                 $reservationCreated[] = $reservation;
             }
