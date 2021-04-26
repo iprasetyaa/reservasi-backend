@@ -48,9 +48,6 @@ class ReservationDailyRecurringController extends Controller
             DB::commit();
             return response(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
-            echo $e;
-            die;
-
             DB::rollback();
             return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
