@@ -38,7 +38,7 @@ class CreateZoomMeeting
                 'start_time' => $reservation->start_time,
                 'timezone' => 'Asia/Jakarta',
                 'password' => config('zoom.join_password'),
-                'setting' => [
+                'settings' => [
                     'join_before_host' => true,
                     'jbh_time' => 0,
                     'auto_recording' => 'cloud',
