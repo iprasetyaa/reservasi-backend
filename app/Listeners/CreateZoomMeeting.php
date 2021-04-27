@@ -41,6 +41,7 @@ class CreateZoomMeeting
                 'setting' => [
                     'join_before_host' => true,
                     'jbh_time' => 0,
+                    'auto_recording' => 'cloud',
                 ]
             ]);
 
