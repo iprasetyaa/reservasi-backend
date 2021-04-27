@@ -9,4 +9,5 @@ return [
     'max_api_calls_per_request' => '5', // how many times can we hit the api to return results for an all() request
     // Custom
     'email' => env('ZOOM_CLIENT_EMAIL'),
+    'join_password' => env('ZOOM_JOIN_PASSWORD'),
 ];
