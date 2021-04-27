@@ -63,7 +63,7 @@ class ReservationDailyRecurringController extends Controller
      * @param  Request $request
      * @param  Array $timeDetails
      * @param  Int $count
-     * @return Int
+     * @return array
      */
     protected function createReservation($request, $timeDetails)
     {
@@ -85,7 +85,8 @@ class ReservationDailyRecurringController extends Controller
                     'approval_status' => ReservationStatusEnum::already_approved()
                 ]);
 
-                array_push($reservations, $reservation->id);
+                $reservations[] = $reservation->id;
+
                 event(new AfterReservation($reservation, $asset));
             }
         }
@@ -128,7 +129,7 @@ class ReservationDailyRecurringController extends Controller
      * storeReccuringDay
      *
      * @param  mixed $request
-     * @return void
+     * @return array
      */
     protected function storeReservation($request)
     {
