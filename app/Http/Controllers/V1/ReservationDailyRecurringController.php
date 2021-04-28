@@ -68,10 +68,9 @@ class ReservationDailyRecurringController extends Controller
     protected function createReservation($request, $timeDetails)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
-
         $date = Carbon::parse($timeDetails['date']);
-
         $reservations = [];
+
         if (in_array($date->dayOfWeek, $request->days)) {
             foreach ($assets as $asset) {
                 $reservation = Reservation::create($request->validated() + $timeDetails + [
