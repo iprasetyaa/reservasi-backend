@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Carbon;
 use stdClass;
 
-class AssetReservationRule implements Rule
+class EditAssetReservationRule implements Rule
 {
 
     public $reservation;
@@ -17,12 +17,12 @@ class AssetReservationRule implements Rule
      *
      * @return void
      */
-    public function __construct($date, $start_time, $end_time, $id = null)
+    public function __construct($date, $startTime, $endTime, $id = null)
     {
         $this->reservation = new stdClass();
         $this->reservation->date = $date;
-        $this->reservation->start_time = Carbon::parse($start_time);
-        $this->reservation->end_time = Carbon::parse($end_time);
+        $this->reservation->start_time = Carbon::parse($startTime);
+        $this->reservation->end_time = Carbon::parse($endTime);
         $this->id = $id;
     }
 

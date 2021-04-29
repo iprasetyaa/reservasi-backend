@@ -6,4 +6,5 @@ return [
     'rejected' => 'Rejected',
     'already_approved' => 'Approved',
     'not_yet_approved' => 'On Progress',
+    'no_reservation' => 'No reservation occurrences',
 ];

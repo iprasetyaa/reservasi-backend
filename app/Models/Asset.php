@@ -17,4 +17,9 @@ class Asset extends Model
         'status' => AssetStatusEnum::class,
         'resource_type' => ResourceType::class,
     ];
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
 }

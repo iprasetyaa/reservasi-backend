@@ -72,6 +72,8 @@ WORKDIR /var/www/html
 COPY --chown=nobody . /var/www/html/
 #COPY --chown=nobody .env-local /var/www/html/.env
 
+RUN chmod +x docker/docker-entrypoint.sh
+
 RUN composer install
 
 RUN php artisan storage:link
@@ -80,6 +82,4 @@ RUN php artisan storage:link
 EXPOSE 8080
 
 # Let supervisord start nginx & php-fpm
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-
-# Configure a healthcheck to validate that everything is up&running
+ENTRYPOINT [ "docker/docker-entrypoint.sh" ]

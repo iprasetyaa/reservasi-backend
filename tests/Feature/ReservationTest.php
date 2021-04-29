@@ -152,23 +152,46 @@ class ReservationTest extends TestCase
         $data = [
             'title' => 'test',
             'description' => 'testing phpunit',
-            'asset_id' => $this->asset->id,
-            'date' => Carbon::now('+07:00')->format('Y-m-d'),
-            'start_time' => Carbon::now('+07:00')->format('Y-m-d H:i'),
-            'end_time' => Carbon::now('+07:00')->addMinutes(30)->format('Y-m-d H:i'),
-            'approval_status' => 'already_approved',
-            'user_id_reservation' => $employee->uuid,
-            'user_fullname' => $employee->name,
-            'username' => $employee->username,
-            'asset_id' => $this->asset->id,
-            'asset_name' => $this->asset->name,
-            'approval_status' => 'already_approved',
-            'join_url' => 'https://localhost:3000',
+            'asset_ids' => [$this->asset->id],
+            'start_date' => Carbon::now()->format('Y-m-d'),
+            'from' => Carbon::now()->format('H:i:s'),
+            'to' => Carbon::now()->addMinutes(30)->format('H:i:s')
         ];
         // 2. Hit Api Endpoint
         $response = $this->actingAs($employee)->post(route('reservation.store'), $data);
         // 3. Verify and Assertion
         $response->assertStatus(Response::HTTP_CREATED);
+        // 4. Database test (check data already inserted or not)
+        $this->assertDatabaseHas('reservations', [
+            'title' => 'test',
+            'description' => 'testing phpunit',
+            'asset_id' => $this->asset->id,
+            'date' => Carbon::now()->format('Y-m-d'),
+            'start_time' => Carbon::now()->format('Y-m-d H:i:s'),
+            'end_time' => Carbon::now()->addMinutes(30)->format('Y-m-d H:i:s')
+        ]);
+    }
+
+    public function testStoreReservationNullData()
+    {
+        Mail::fake();
+        // 1. Mocking data
+        $employee = $this->employee;
+        $data = [];
+        // 2. Hit Api Endpoint
+        $response = $this->actingAs($employee)->post(route('reservation.store'), $data);
+        // 3. Verify and Assertion
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'title',
+                'asset_ids',
+                'date',
+                'start_time',
+                'end_time'
+            ]
+        ]);
     }
 
     public function testSendEmailReservation()

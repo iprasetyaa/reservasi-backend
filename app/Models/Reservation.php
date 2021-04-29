@@ -106,6 +106,11 @@ class Reservation extends Model
 
     public function getCheckTimeEditValidAttribute()
     {
-        return Carbon::now('+07:00') > $this->start_time->subMinutes(30);
+        return Carbon::now() > $this->start_time->subMinutes(30);
+    }
+
+    public function asset()
+    {
+        return $this->belongsTo(Asset::class, 'asset_id');
     }
 }
