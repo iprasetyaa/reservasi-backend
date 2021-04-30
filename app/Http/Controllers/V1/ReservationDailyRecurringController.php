@@ -138,8 +138,11 @@ class ReservationDailyRecurringController extends Controller
 
         while ($date->lte($endDate)) {
             $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+            $dayInWhile = $date->dayOfWeek;
 
-            throw_if(!$this->isAvailableAsset($request->asset_ids, $timeDetails), new NotAvailableAssetException());
+            if (in_array($dayInWhile, $request->days)) {
+                throw_if(!$this->isAvailableAsset($request->asset_ids, $timeDetails), new NotAvailableAssetException());
+            }
 
             $reservation = $this->createReservation($request, $timeDetails);
 
