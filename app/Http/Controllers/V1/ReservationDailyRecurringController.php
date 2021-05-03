@@ -72,7 +72,7 @@ class ReservationDailyRecurringController extends Controller
         $date = Carbon::parse($timeDetails['date']);
         $reservations = [];
 
-        if (in_array($date->dayOfWeek, $request->days)) {
+        if ($date->gte($request->start_date)) {
             foreach ($assets as $asset) {
                 $reservation = $this->storeData($request, $asset, $timeDetails);
 
@@ -93,26 +93,29 @@ class ReservationDailyRecurringController extends Controller
      */
     protected function storeReservation($request)
     {
-        $date = Carbon::parse($request->start_date);
+        $initDates = $this->createInitialDates($request->start_date, $request->days);
         $endDate = Carbon::parse($request->end_date);
         $reservationCreated = [];
 
-        while ($date->lte($endDate)) {
-            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+        foreach ($initDates as $date) {
+            while ($date->lte($endDate)) {
+                $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
-            throw_if(
-                !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
-                in_array($date->dayOfWeek, $request->days),
-                new NotAvailableAssetException()
-            );
+                throw_if(
+                    !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
+                    in_array($date->dayOfWeek, $request->days),
+                    new NotAvailableAssetException()
+                );
 
-            $reservation = $this->createReservation($request, $timeDetails);
+                $reservation = $this->createReservation($request, $timeDetails);
 
-            if (count($reservation)) {
-                $reservationCreated[] = $reservation;
+                if (count($reservation)) {
+                    $reservationCreated[] = $reservation;
+                }
+
+                // $date->addDays(1);
+                $date->addWeeks(1);
             }
-
-            $date->addDays(1);
         }
 
         return $reservationCreated;
