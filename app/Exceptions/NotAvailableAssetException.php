@@ -9,7 +9,7 @@ class NotAvailableAssetException extends \Exception
     public function validationException()
     {
         return ValidationException::withMessages([
-            'asset_ids' => __('validation.asset_reserved', ['attribute' => 'asset_ids'])
+            'asset_ids' => __('message.already_reserved', ['attribute' => 'asset_ids'])
         ]);
     }
 }
