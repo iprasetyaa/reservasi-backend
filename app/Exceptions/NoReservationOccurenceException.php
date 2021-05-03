@@ -9,7 +9,7 @@ class NoReservationOccurenceException extends \Exception
     public function validationException()
     {
         return ValidationException::withMessages([
-            __('message.no_reservation')
+            'days' => __('message.no_reservation')
         ]);
     }
 }
