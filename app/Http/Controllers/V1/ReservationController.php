@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\V1;
 
 use App\Enums\ReservationStatusEnum;
-use App\Enums\ResourceTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Events\AfterReservation;
 use App\Events\AfterReservationCreated;
+use App\Exceptions\NotAvailableAssetException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateReservationRequest;
 use App\Http\Requests\EditReservationRequest;
 use App\Http\Resources\ReservationResource;
 use App\Models\Asset;
 use App\Models\Reservation;
+use App\Traits\ReservationTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,7 @@ use Illuminate\Http\Response;
 
 class ReservationController extends Controller
 {
+    use ReservationTrait;
 
     /**
      * __construct
@@ -69,8 +71,13 @@ class ReservationController extends Controller
      */
     public function store(CreateReservationRequest $request)
     {
+        $date = Carbon::parse($request->start_date);
+
         try {
             DB::beginTransaction();
+
+            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+            throw_if(!$this->isAvailableAsset($request->asset_ids, $timeDetails), new NotAvailableAssetException());
 
             $assets = Asset::whereIn('id', $request->asset_ids)->get();
             $reservations = [];
@@ -94,7 +101,10 @@ class ReservationController extends Controller
             event(new AfterReservationCreated($reservations));
 
             DB::commit();
-        } catch (\Exception $th) {
+        } catch (NotAvailableAssetException $e) {
+            DB::rollback();
+            throw $e->validationException();
+        } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
