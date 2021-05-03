@@ -60,4 +60,23 @@ trait ReservationTrait
             'approval_status' => ReservationStatusEnum::already_approved()
         ]);
     }
+
+    /**
+     * Functoin to create the initial dates in a week
+     *
+     * @param  Date $startDate
+     * @param  Array $days
+     * @return Array
+     */
+    protected function createInitialDates($startDate, $days)
+    {
+        $initDates = [];
+        $date = Carbon::parse($startDate)->copy()->startOfWeek();
+
+        foreach ($days as $day) {
+            $initDates[] = $date->copy()->addDays($day - 1);
+        }
+
+        return $initDates;
+    }
 }
