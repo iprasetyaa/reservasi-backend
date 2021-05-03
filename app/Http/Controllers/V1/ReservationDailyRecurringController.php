@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Enums\ReservationStatusEnum;
 use App\Events\AfterReservation;
 use App\Events\AfterReservationCreated;
 use App\Exceptions\NoReservationOccurenceException;
@@ -39,12 +38,11 @@ class ReservationDailyRecurringController extends Controller
      */
     public function __invoke(ReservationRecurringRequest $request)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
+
             $reservationCreated = $this->storeReservation($request);
-
             throw_if(!count($reservationCreated), new NoReservationOccurenceException());
-
             event(new AfterReservationCreated(Arr::first($reservationCreated)));
 
             DB::commit();
