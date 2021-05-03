@@ -76,16 +76,7 @@ class ReservationDailyRecurringController extends Controller
 
         if (in_array($date->dayOfWeek, $request->days)) {
             foreach ($assets as $asset) {
-                $reservation = Reservation::create($request->validated() + $timeDetails + [
-                    'user_id_reservation' => $request->user()->uuid,
-                    'user_fullname' => $request->user()->name,
-                    'username' => $request->user()->username,
-                    'email' => $request->user()->email,
-                    'asset_id' => $asset->id,
-                    'asset_name' => $asset->name,
-                    'asset_description' => $asset->description,
-                    'approval_status' => ReservationStatusEnum::already_approved()
-                ]);
+                $reservation = $this->storeData($request, $asset, $timeDetails);
 
                 $reservations[] = $reservation->id;
 

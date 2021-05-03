@@ -83,16 +83,7 @@ class ReservationController extends Controller
             $reservations = [];
 
             foreach ($assets as $asset) {
-                $reservation = Reservation::create($request->validated() + [
-                    'user_id_reservation' => $request->user()->uuid,
-                    'user_fullname' => $request->user()->name,
-                    'username' => $request->user()->username,
-                    'email' => $request->user()->email,
-                    'asset_name' => $asset->name,
-                    'asset_id' => $asset->id,
-                    'asset_description' => $asset->description,
-                    'approval_status' => ReservationStatusEnum::already_approved(),
-                ]);
+                $reservation = $this->storeData($request, $asset);
 
                 event(new AfterReservation($reservation, $asset));
                 array_push($reservations, $reservation->id);

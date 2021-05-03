@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\ReservationStatusEnum;
 use App\Models\Reservation;
 use Carbon\Carbon;
 
@@ -36,5 +37,27 @@ trait ReservationTrait
             ->validateTime((object) $timeDetails)
             ->alreadyApproved()
             ->doesntExist();
+    }
+
+    /**
+     * Method to create reservation
+     *
+     * @param  Request $request
+     * @param  Asset $asset
+     * @param  Array $timeDetails
+     * @return Reservation
+     */
+    public function storeData($request, $asset, $timeDetails = [])
+    {
+        return Reservation::create($request->validated() + $timeDetails + [
+            'user_id_reservation' => $request->user()->uuid,
+            'user_fullname' => $request->user()->name,
+            'username' => $request->user()->username,
+            'email' => $request->user()->email,
+            'asset_id' => $asset->id,
+            'asset_name' => $asset->name,
+            'asset_description' => $asset->description,
+            'approval_status' => ReservationStatusEnum::already_approved()
+        ]);
     }
 }
