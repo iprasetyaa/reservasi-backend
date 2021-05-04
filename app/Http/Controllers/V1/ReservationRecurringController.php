@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Enums\ReservationRecurringTypeEnum;
 use App\Events\AfterReservation;
 use App\Events\AfterReservationCreated;
 use App\Exceptions\NoReservationOccurenceException;
@@ -16,7 +17,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
-class ReservationWeeklyRecurringController extends Controller
+class ReservationRecurringController extends Controller
 {
     use ReservationTrait;
 
@@ -99,6 +100,11 @@ class ReservationWeeklyRecurringController extends Controller
 
         foreach ($initDates as $date) {
             while ($date->lte($endDate)) {
+
+                if (strcasecmp($request->recurringType, ReservationRecurringTypeEnum::MONTHLY()) == 0) {
+                    $date = $date->nthOfMonth($request->week, $request->days[0]);
+                }
+
                 $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
                 throw_if(
@@ -113,10 +119,31 @@ class ReservationWeeklyRecurringController extends Controller
                     $reservationCreated[] = $reservation;
                 }
 
-                $date->addWeeks($request->week);
+                $this->incrementDate($request, $date);
             }
         }
 
         return $reservationCreated;
+    }
+
+    /**
+     * Date increment
+     *
+     * @param  Request $request
+     * @param  Date $date
+     * @return Date
+     */
+    protected function incrementDate($request, $date)
+    {
+        switch (strtoupper($request->recurringType)) {
+            case ReservationRecurringTypeEnum::WEEKLY():
+                return $date->addWeeks($request->week);;
+
+            case ReservationRecurringTypeEnum::MONTHLY():
+                return $date->addMonths($request->month);
+
+            default:
+                return $date->addWeeks(1);
+        }
     }
 }
