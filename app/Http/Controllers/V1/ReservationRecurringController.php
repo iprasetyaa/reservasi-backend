@@ -95,35 +95,51 @@ class ReservationRecurringController extends Controller
     protected function storeReservation($request)
     {
         $initDates = $this->createInitialDates($request->start_date, $request->days);
-        $endDate = Carbon::parse($request->end_date);
         $reservationCreated = [];
 
         foreach ($initDates as $date) {
-            while ($date->lte($endDate)) {
-
-                if (strcasecmp($request->recurringType, ReservationRecurringTypeEnum::MONTHLY()) == 0) {
-                    $date = $date->nthOfMonth($request->week, $request->days[0]);
-                }
-
-                $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
-
-                throw_if(
-                    !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
-                    in_array($date->dayOfWeek, $request->days),
-                    new NotAvailableAssetException()
-                );
-
-                $reservation = $this->createReservation($request, $timeDetails);
-
-                if (count($reservation)) {
-                    $reservationCreated[] = $reservation;
-                }
-
-                $this->incrementDate($request, $date);
-            }
+            $reservationCreated = $this->listCreatedReservation($request, $date, $reservationCreated);
         }
 
         return $reservationCreated;
+    }
+
+    /**
+     * Function to list the created reservations
+     *
+     * @param  Request $request
+     * @param  Array $timeDetails
+     * @param  Int $count
+     * @return array
+     */
+    protected function listCreatedReservation($request, $date, $created)
+    {
+        $endDate = Carbon::parse($request->end_date);
+
+        while ($date->lte($endDate)) {
+
+            if (strcasecmp($request->recurringType, ReservationRecurringTypeEnum::MONTHLY()) == 0) {
+                $date = $date->nthOfMonth($request->week, $request->days[0]);
+            }
+
+            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+
+            throw_if(
+                !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
+                in_array($date->dayOfWeek, $request->days),
+                new NotAvailableAssetException()
+            );
+
+            $reservation = $this->createReservation($request, $timeDetails);
+
+            if (count($reservation)) {
+                $created[] = $reservation;
+            }
+
+            $this->incrementDate($request, $date);
+        }
+
+        return $created;
     }
 
     /**
