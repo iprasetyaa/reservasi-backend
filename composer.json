@@ -16,7 +16,7 @@
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "macsidigital/laravel-zoom": "^4.1",
-        "sentry/sentry-laravel": "^2.5",
+        "sentry/sentry-laravel": "^2.3",
         "spatie/laravel-enum": "^1.6"
     },
     "require-dev": {
