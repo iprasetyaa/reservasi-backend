@@ -47,7 +47,7 @@ class ReservationDailyRecurringTest extends TestCase
         ];
 
         // 2. Hit Api Endpoint
-        $response = $this->actingAs($employee)->post(route('reservation.daily'), $data);
+        $response = $this->actingAs($employee)->post(route('reservation.recurring', 'daily'), $data);
 
         // 3. Verify and Assertion
         $response->assertStatus(Response::HTTP_CREATED);
