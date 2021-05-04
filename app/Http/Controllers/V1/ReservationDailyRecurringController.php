@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRecurringRequest;
 use App\Models\Asset;
 use App\Models\Reservation;
+use App\Traits\ReservationTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ReservationDailyRecurringController extends Controller
 {
+    use ReservationTrait;
+
     /**
      * __construct
      *
@@ -73,16 +76,7 @@ class ReservationDailyRecurringController extends Controller
 
         if (in_array($date->dayOfWeek, $request->days)) {
             foreach ($assets as $asset) {
-                $reservation = Reservation::create($request->validated() + $timeDetails + [
-                    'user_id_reservation' => $request->user()->uuid,
-                    'user_fullname' => $request->user()->name,
-                    'username' => $request->user()->username,
-                    'email' => $request->user()->email,
-                    'asset_id' => $asset->id,
-                    'asset_name' => $asset->name,
-                    'asset_description' => $asset->description,
-                    'approval_status' => ReservationStatusEnum::already_approved()
-                ]);
+                $reservation = $this->storeData($request, $asset, $timeDetails);
 
                 $reservations[] = $reservation->id;
 
@@ -91,37 +85,6 @@ class ReservationDailyRecurringController extends Controller
         }
 
         return $reservations;
-    }
-
-    /**
-     * Method to create time details
-     *
-     * @return Array
-     */
-    protected function createTimeDetails($date, $from, $to)
-    {
-        $date = $date->format('Y-m-d');
-
-        return [
-            'date' => $date,
-            'start_time' => Carbon::parse($date . $from),
-            'end_time' => Carbon::parse($date . $to)
-        ];
-    }
-
-    /**
-     * Function to check asset availability
-     *
-     * @param  [String] $asset_id
-     * @param  [Array] $timeDetails
-     * @return Boolean
-     */
-    protected function isAvailableAsset($asset_ids, $timeDetails)
-    {
-        return Reservation::whereIn('asset_id', $asset_ids)
-            ->validateTime((object) $timeDetails)
-            ->alreadyApproved()
-            ->doesntExist();
     }
 
     /**

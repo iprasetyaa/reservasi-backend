@@ -29,15 +29,7 @@ class CreateReservationRequest extends FormRequest
         return [
             'title' => 'required',
             'asset_ids' => 'required|array',
-            'asset_ids.*' => [
-                'exists:assets,id,deleted_at,NULL',
-                new CreateAssetReservationRule(
-                    $this->asset_ids,
-                    $this->date,
-                    $this->start_time,
-                    $this->end_time,
-                )
-            ],
+            'asset_ids.*' => 'exists:assets,id,deleted_at,NULL',
             'date' => "required|date|date_format:Y-m-d|after:{$date}",
             'start_time' => "required|date|date_format:Y-m-d H:i:s",
             'end_time' => 'required|date|date_format:Y-m-d H:i:s|after:start_time',
