@@ -153,7 +153,7 @@ class ReservationRecurringController extends Controller
     {
         switch (strtoupper($request->recurringType)) {
             case ReservationRecurringTypeEnum::WEEKLY():
-                return $date->addWeeks($request->week);;
+                return $date->addWeeks($request->week);
 
             case ReservationRecurringTypeEnum::MONTHLY():
                 return $date->addMonths($request->month);
