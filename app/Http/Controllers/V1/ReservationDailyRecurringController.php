@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Enums\ReservationStatusEnum;
-use App\Events\AfterReservation;
-use App\Events\AfterReservationCreated;
+use App\Events\AfterReservationRecurringCreated;
 use App\Exceptions\NoReservationOccurenceException;
 use App\Exceptions\NotAvailableAssetException;
 use App\Http\Controllers\Controller;
@@ -42,7 +41,7 @@ class ReservationDailyRecurringController extends Controller
 
             throw_if(!count($reservationCreated), new NoReservationOccurenceException());
 
-            event(new AfterReservationCreated(Arr::first($reservationCreated)));
+            event(new AfterReservationRecurringCreated($reservationCreated, $request));
 
             DB::commit();
             return response(null, Response::HTTP_CREATED);
@@ -68,26 +67,21 @@ class ReservationDailyRecurringController extends Controller
     protected function createReservation($request, $timeDetails)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
-        $date = Carbon::parse($timeDetails['date']);
         $reservations = [];
 
-        if (in_array($date->dayOfWeek, $request->days)) {
-            foreach ($assets as $asset) {
-                $reservation = Reservation::create($request->validated() + $timeDetails + [
-                    'user_id_reservation' => $request->user()->uuid,
-                    'user_fullname' => $request->user()->name,
-                    'username' => $request->user()->username,
-                    'email' => $request->user()->email,
-                    'asset_id' => $asset->id,
-                    'asset_name' => $asset->name,
-                    'asset_description' => $asset->description,
-                    'approval_status' => ReservationStatusEnum::already_approved()
-                ]);
+        foreach ($assets as $asset) {
+            $reservation = Reservation::create($request->validated() + $timeDetails + [
+                'user_id_reservation' => $request->user()->uuid,
+                'user_fullname' => $request->user()->name,
+                'username' => $request->user()->username,
+                'email' => $request->user()->email,
+                'asset_id' => $asset->id,
+                'asset_name' => $asset->name,
+                'asset_description' => $asset->description,
+                'approval_status' => ReservationStatusEnum::already_approved()
+            ]);
 
-                $reservations[] = $reservation->id;
-
-                event(new AfterReservation($reservation, $asset));
-            }
+            $reservations[] = $reservation->id;
         }
 
         return $reservations;
@@ -142,11 +136,8 @@ class ReservationDailyRecurringController extends Controller
 
             if (in_array($dayInWhile, $request->days)) {
                 throw_if(!$this->isAvailableAsset($request->asset_ids, $timeDetails), new NotAvailableAssetException());
-            }
 
-            $reservation = $this->createReservation($request, $timeDetails);
-
-            if (count($reservation)) {
+                $reservation = $this->createReservation($request, $timeDetails);
                 $reservationCreated[] = $reservation;
             }
 
