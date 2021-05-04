@@ -11,14 +11,14 @@ RUN apk --update add ca-certificates
 RUN echo "https://packages.whatwedo.ch/php-alpine/v3.10/php-7.4" >> /etc/apk/repositories
 
 # Install packages
-RUN apk add php php-fpm php-opcache php-openssl php-curl php-gd \
+RUN apk --no-cache add php php-fpm php-opcache php-openssl php-curl php-gd \
     nginx supervisor curl
 
 # Get latest Composer
-RUN apk add composer
-RUN apk add \
+RUN apk --no-cache add \
 		nano \
 		php7 \
+        php7-phar \
         php7-ctype \
         php7-curl \
         php7-dom \
@@ -31,9 +31,7 @@ RUN apk add \
         php7-session \
         php7-xmlreader \
         php7-zip \
-        php7-zlib \
-        npm
-
+        php7-zlib
 
 # https://github.com/codecasts/php-alpine/issues/21
 RUN ln -s /usr/bin/php7 /usr/bin/php
@@ -74,7 +72,8 @@ COPY --chown=nobody . /var/www/html/
 
 RUN chmod +x docker/docker-entrypoint.sh
 
-RUN composer install
+COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
+RUN php /usr/local/bin/composer install --no-dev --optimize-autoloader
 
 RUN php artisan storage:link
 
