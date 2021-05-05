@@ -48,8 +48,8 @@ class ReservationRecurringRequest extends FormRequest
             ],
             'days' => 'array|required_if:repeat,true|max:7',
             'days.*'  => 'numeric|distinct|max:6',
-            'week' => "numeric|required_if:repeat_type,{$weeklyType},{$monthlyType}",
-            'month' => "numeric|required_if:repeat_type,{$monthlyType}"
+            'week' => "numeric|required_if:repeat_type,{$weeklyType},{$monthlyType}|nullable",
+            'month' => "numeric|required_if:repeat_type,{$monthlyType}|nullable"
         ];
     }
 }
