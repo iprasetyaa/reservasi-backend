@@ -77,7 +77,11 @@ trait ReservationTrait
         $date = Carbon::parse($startDate)->copy()->startOfWeek();
 
         foreach ($days as $day) {
-            $day === 0 ? $additionNumber = 6 : $additionNumber = $day - 1;
+            if ($day === 0) {
+                $additionNumber = 6;
+            } else {
+                $additionNumber = $day - 1;
+            }
 
             $initDates[] = $date->copy()->addDays($additionNumber);
         }
