@@ -14,6 +14,7 @@ class Reservation extends Model
     use HasEnums;
 
     protected $fillable = [
+        'recurring_id',
         'user_id_reservation',
         'user_fullname',
         'username',
