@@ -4,11 +4,11 @@ namespace App\Listeners;
 
 use App\Enums\ResourceTypeEnum;
 use App\Events\AfterReservationRecurringCreated;
+use App\Mail\ReservationApprovalMail;
 use MacsiDigital\Zoom\Facades\Zoom;
-use App\Models\Asset;
 use App\Models\Reservation;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Mail;
 
 class CreateZoomMeetingRecurring
 {
@@ -30,29 +30,31 @@ class CreateZoomMeetingRecurring
      */
     public function handle(AfterReservationRecurringCreated $event)
     {
-        $reservations = $event->reservations;
-        $firstReservation = Arr::first($reservations);
-        $request = $event->request;
+        $reservations       = $event->reservations;
+        $firstReservation   = Arr::first($reservations);
+        $request            = $event->request;
+        $recurringId        = $event->recurringId;
+        $data = [];
 
         foreach ($firstReservation as $item) {
             $reservation = Reservation::findOrFail($item);
             $asset = $reservation->asset;
 
             if ($asset->resource_type == ResourceTypeEnum::online()) {
-                $weekIteration = $this->weekIteration($reservations, $request);
-                $zoomDay = $this->zoomDay($request);
-                $recurrence = $this->zoomRecurrence($request, $zoomDay, $weekIteration);
-
-                $createZoomMeeting = $this->createZoom($asset, $reservation, $recurrence);
-
-                Reservation::where('recurring_id', $reservation->recurring_id)
-                        ->where('asset_id', $reservation->asset->id)
-                        ->update([
-                            'join_url' => $createZoomMeeting
-                        ]);
+                $weekIteration      = $this->weekIteration($reservations, $request);
+                $zoomDay            = $this->zoomDay($request);
+                $recurrence         = $this->zoomRecurrence($request, $zoomDay, $weekIteration);
+                $createZoomMeeting  = $this->createZoom($asset, $reservation, $recurrence);
+                $this->updateReservation($reservation, $createZoomMeeting);
             }
+
+            array_push($data, [
+                'reservation' => Reservation::findOrFail($item),
+                'user' => $createZoomMeeting ? Zoom::user()->find($reservation->asset->zoom_email) : null
+            ]);
         }
 
+        $this->sendMailRecurring($recurringId, $request, $data);
         return $reservations;
     }
 
@@ -137,7 +139,7 @@ class CreateZoomMeetingRecurring
      * @param  mixed $asset
      * @param  mixed $reservation
      * @param  mixed $recurrence
-     * @return void
+     * @return object
      */
     public function createZoom($asset, $reservation, $recurrence)
     {
@@ -149,7 +151,7 @@ class CreateZoomMeetingRecurring
             'start_time' => $reservation->start_time,
             'timezone' => 'Asia/Jakarta',
             'password' => config('zoom.join_password'),
-            ]);
+        ]);
 
         $meeting->recurrence()->make($recurrence);
         $meeting->settings()->make([
@@ -160,6 +162,34 @@ class CreateZoomMeetingRecurring
 
         $user->meetings()->save($meeting);
 
-        return $meeting->join_url;
+        return $meeting;
+    }
+
+    /**
+     * updateReservation
+     *
+     * @param  mixed $reservation
+     * @param  mixed $createZoomMeeting
+     * @return void
+     */
+    public function updateReservation($reservation, $createZoomMeeting)
+    {
+        Reservation::where('recurring_id', $reservation->recurring_id)
+                    ->where('asset_id', $reservation->asset->id)
+                    ->update(['join_url' => $createZoomMeeting->join_url]);
+    }
+
+    /**
+     * sendMailRecurring
+     *
+     * @param  mixed $recurringId
+     * @param  mixed $request
+     * @param  mixed $data
+     * @return void
+     */
+    public function sendMailRecurring($recurringId, $request, $data)
+    {
+        $lastRecurring = Reservation::where('recurring_id', $recurringId)->orderBy('id', 'desc')->first();
+        Mail::to($request->user()->email)->send(new ReservationApprovalMail($data, $lastRecurring, $request->all()));
     }
 }

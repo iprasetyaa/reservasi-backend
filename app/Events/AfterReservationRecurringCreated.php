@@ -22,10 +22,11 @@ class AfterReservationRecurringCreated
      *
      * @return void
      */
-    public function __construct($reservations, $request)
+    public function __construct($reservations, $request, $recurringId)
     {
         $this->reservations = $reservations;
         $this->request      = $request;
+        $this->recurringId  = $recurringId;
     }
 
     /**

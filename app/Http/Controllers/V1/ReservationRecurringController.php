@@ -41,9 +41,11 @@ class ReservationRecurringController extends Controller
         try {
             DB::beginTransaction();
 
-            $reservationCreated = $this->storeReservation($request);
+            $recurringId = $this->generateRecurringId();
+
+            $reservationCreated = $this->storeReservation($request, $recurringId);
             throw_if(!count($reservationCreated), new NoReservationOccurenceException());
-            event(new AfterReservationRecurringCreated($reservationCreated, $request));
+            event(new AfterReservationRecurringCreated($reservationCreated, $request, $recurringId));
 
             DB::commit();
             return response(null, Response::HTTP_CREATED);
@@ -66,7 +68,7 @@ class ReservationRecurringController extends Controller
      * @param  Int $count
      * @return array
      */
-    protected function createReservation($request, $timeDetails, $reccuringId)
+    protected function createReservation($request, $timeDetails, $recurringId)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
         $date = Carbon::parse($timeDetails['date']);
@@ -74,7 +76,7 @@ class ReservationRecurringController extends Controller
 
         if ($date->gte($request->start_date)) {
             foreach ($assets as $asset) {
-                $reservation = $this->storeData($request, $asset, $reccuringId, $timeDetails);
+                $reservation = $this->storeData($request, $asset, $recurringId, $timeDetails);
 
                 $reservations[] = $reservation->id;
             }
@@ -89,13 +91,13 @@ class ReservationRecurringController extends Controller
      * @param  mixed $request
      * @return array
      */
-    protected function storeReservation($request)
+    protected function storeReservation($request, $recurringId)
     {
         $initDates = $this->createInitialDates($request->start_date, $request->days);
         $reservationCreated = [];
 
         foreach ($initDates as $date) {
-            $reservationCreated = $this->listCreatedReservation($request, $date, $reservationCreated);
+            $reservationCreated = $this->listCreatedReservation($request, $date, $reservationCreated, $recurringId);
         }
 
         return $reservationCreated;
@@ -109,11 +111,9 @@ class ReservationRecurringController extends Controller
      * @param  Int $count
      * @return array
      */
-    protected function listCreatedReservation($request, $date, $created)
+    protected function listCreatedReservation($request, $date, $created, $recurringId)
     {
         $endDate = Carbon::parse($request->end_date);
-        $getLastReservation = Reservation::latest()->first();
-        $reccuringId = optional($getLastReservation)->recurring_id + 1 ?? 1;
 
         while ($date->lte($endDate)) {
             if (strcasecmp($request->recurringType, ReservationRecurringTypeEnum::MONTHLY()) == 0) {
@@ -128,7 +128,7 @@ class ReservationRecurringController extends Controller
                 new NotAvailableAssetException()
             );
 
-            $reservation = $this->createReservation($request, $timeDetails, $reccuringId);
+            $reservation = $this->createReservation($request, $timeDetails, $recurringId);
 
             if (count($reservation)) {
                 $created[] = $reservation;
@@ -159,5 +159,11 @@ class ReservationRecurringController extends Controller
             default:
                 return $date->addWeeks(1);
         }
+    }
+
+    public function generateRecurringId()
+    {
+        $getLastReservation = Reservation::latest()->first();
+        return optional($getLastReservation)->recurring_id + 1 ?? 1;
     }
 }

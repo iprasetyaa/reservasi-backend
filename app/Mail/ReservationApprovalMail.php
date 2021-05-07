@@ -7,22 +7,24 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ReservationApprovalMail extends Mailable implements ShouldQueue
+class ReservationApprovalMail extends Mailable
 {
-    use Queueable;
+    // use Queueable;
     use SerializesModels;
 
     public $data;
     public $request;
+    public $lastRecurring;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($data, $request = null)
+    public function __construct($data, $lastRecurring = null, $request = null)
     {
-        $this->data = $data;
-        $this->request = $request;
+        $this->data             = $data;
+        $this->request          = $request;
+        $this->lastRecurring    = $lastRecurring;
     }
 
     /**
