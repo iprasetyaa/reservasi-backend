@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Enums\ResourceTypeEnum;
+use App\Enums\ZoomMeetingTypeEnum;
 use App\Enums\ZoomMeetingRecurringTypeEnum;
 use App\Events\AfterReservationRecurringCreated;
 use App\Mail\ReservationApprovalMail;
@@ -148,7 +149,7 @@ class CreateZoomMeetingRecurring
         $meeting = Zoom::user()->find($asset->zoom_email)->meetings()->make([
             'topic' => $reservation->title,
             'duration' => $this->timeInMinute($reservation),
-            'type' => 8,
+            'type' => ZoomMeetingTypeEnum::RECURRING_MEETING_FIXED_TIME(),
             'start_time' => $reservation->start_time,
             'timezone' => 'Asia/Jakarta',
             'password' => config('zoom.join_password'),
