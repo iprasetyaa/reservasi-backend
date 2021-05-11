@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Enums\ReservationStatusEnum;
+use App\Enums\ReservationRecurringTypeEnum;
 use App\Events\AfterReservation;
 use App\Events\AfterReservationCreated;
 use App\Exceptions\NoReservationOccurenceException;
@@ -10,14 +10,17 @@ use App\Exceptions\NotAvailableAssetException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRecurringRequest;
 use App\Models\Asset;
-use App\Models\Reservation;
+use App\Traits\ReservationTrait;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
-class ReservationDailyRecurringController extends Controller
+class ReservationRecurringController extends Controller
 {
+    use ReservationTrait;
+
     /**
      * __construct
      *
@@ -36,12 +39,11 @@ class ReservationDailyRecurringController extends Controller
      */
     public function __invoke(ReservationRecurringRequest $request)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
+
             $reservationCreated = $this->storeReservation($request);
-
             throw_if(!count($reservationCreated), new NoReservationOccurenceException());
-
             event(new AfterReservationCreated(Arr::first($reservationCreated)));
 
             DB::commit();
@@ -71,18 +73,9 @@ class ReservationDailyRecurringController extends Controller
         $date = Carbon::parse($timeDetails['date']);
         $reservations = [];
 
-        if (in_array($date->dayOfWeek, $request->days)) {
+        if ($date->gte($request->start_date)) {
             foreach ($assets as $asset) {
-                $reservation = Reservation::create($request->validated() + $timeDetails + [
-                    'user_id_reservation' => $request->user()->uuid,
-                    'user_fullname' => $request->user()->name,
-                    'username' => $request->user()->username,
-                    'email' => $request->user()->email,
-                    'asset_id' => $asset->id,
-                    'asset_name' => $asset->name,
-                    'asset_description' => $asset->description,
-                    'approval_status' => ReservationStatusEnum::already_approved()
-                ]);
+                $reservation = $this->storeData($request, $asset, $timeDetails);
 
                 $reservations[] = $reservation->id;
 
@@ -94,37 +87,6 @@ class ReservationDailyRecurringController extends Controller
     }
 
     /**
-     * Method to create time details
-     *
-     * @return Array
-     */
-    protected function createTimeDetails($date, $from, $to)
-    {
-        $date = $date->format('Y-m-d');
-
-        return [
-            'date' => $date,
-            'start_time' => Carbon::parse($date . $from),
-            'end_time' => Carbon::parse($date . $to)
-        ];
-    }
-
-    /**
-     * Function to check asset availability
-     *
-     * @param  [String] $asset_id
-     * @param  [Array] $timeDetails
-     * @return Boolean
-     */
-    protected function isAvailableAsset($asset_ids, $timeDetails)
-    {
-        return Reservation::whereIn('asset_id', $asset_ids)
-            ->validateTime((object) $timeDetails)
-            ->alreadyApproved()
-            ->doesntExist();
-    }
-
-    /**
      * storeReccuringDay
      *
      * @param  mixed $request
@@ -132,27 +94,71 @@ class ReservationDailyRecurringController extends Controller
      */
     protected function storeReservation($request)
     {
-        $date = Carbon::parse($request->start_date);
-        $endDate = Carbon::parse($request->end_date);
+        $initDates = $this->createInitialDates($request->start_date, $request->days);
         $reservationCreated = [];
 
-        while ($date->lte($endDate)) {
-            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
-            $dayInWhile = $date->dayOfWeek;
+        foreach ($initDates as $date) {
+            $reservationCreated = $this->listCreatedReservation($request, $date, $reservationCreated);
+        }
 
-            if (in_array($dayInWhile, $request->days)) {
-                throw_if(!$this->isAvailableAsset($request->asset_ids, $timeDetails), new NotAvailableAssetException());
+        return $reservationCreated;
+    }
+
+    /**
+     * Function to list the created reservations
+     *
+     * @param  Request $request
+     * @param  Array $timeDetails
+     * @param  Int $count
+     * @return array
+     */
+    protected function listCreatedReservation($request, $date, $created)
+    {
+        $endDate = Carbon::parse($request->end_date);
+
+        while ($date->lte($endDate)) {
+            if (strcasecmp($request->recurringType, ReservationRecurringTypeEnum::MONTHLY()) == 0) {
+                $date = $date->nthOfMonth($request->week, $request->days[0]);
             }
+
+            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+
+            throw_if(
+                !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
+                in_array($date->dayOfWeek, $request->days),
+                new NotAvailableAssetException()
+            );
 
             $reservation = $this->createReservation($request, $timeDetails);
 
             if (count($reservation)) {
-                $reservationCreated[] = $reservation;
+                $created[] = $reservation;
             }
 
-            $date->addDays(1);
+            $this->incrementDate($request, $date);
         }
 
-        return $reservationCreated;
+        return $created;
+    }
+
+    /**
+     * Date increment
+     *
+     * @param  Request $request
+     * @param  Date $date
+     * @return Date
+     */
+    protected function incrementDate($request, $date)
+    {
+        switch (strtoupper($request->recurringType)) {
+            case ReservationRecurringTypeEnum::WEEKLY():
+                return $date->addWeeks($request->week);
+
+            case ReservationRecurringTypeEnum::MONTHLY():
+                return $date->addMonths($request->month);
+
+            default:
+                return $date->addWeeks(1);
+        }
     }
 }
