@@ -64,6 +64,9 @@ trait ReservationTrait
     /**
      * Functoin to create the initial dates in a week
      *
+     * The week started by Monday with index 1, finished by Sunday with index 0
+     * Therefore, the addition number forced to be 6 when the day is Sunday
+     *
      * @param  Date $startDate
      * @param  Array $days
      * @return Array
@@ -74,7 +77,13 @@ trait ReservationTrait
         $date = Carbon::parse($startDate)->copy()->startOfWeek();
 
         foreach ($days as $day) {
-            $initDates[] = $date->copy()->addDays($day - 1);
+            if ($day === 0) {
+                $additionNumber = 6;
+            } else {
+                $additionNumber = $day - 1;
+            }
+
+            $initDates[] = $date->copy()->addDays($additionNumber);
         }
 
         return $initDates;
