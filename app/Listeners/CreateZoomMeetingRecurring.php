@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Enums\ResourceTypeEnum;
+use App\Enums\ZoomMeetingRecurringTypeEnum;
 use App\Events\AfterReservationRecurringCreated;
 use App\Mail\ReservationApprovalMail;
 use MacsiDigital\Zoom\Facades\Zoom;
@@ -37,7 +38,7 @@ class CreateZoomMeetingRecurring
         $data = [];
 
         foreach ($firstReservation as $item) {
-            $reservation = Reservation::findOrFail($item);
+            $reservation = Reservation::where('id', $item)->first();
             $asset = $reservation->asset;
 
             if ($asset->resource_type == ResourceTypeEnum::online()) {
@@ -49,8 +50,8 @@ class CreateZoomMeetingRecurring
             }
 
             array_push($data, [
-                'reservation' => Reservation::findOrFail($item),
-                'user' => $createZoomMeeting ? Zoom::user()->find($reservation->asset->zoom_email) : null
+                'reservation' => Reservation::where('id', $item)->first(),
+                'user' => isset($createZoomMeeting) ? Zoom::user()->find($reservation->asset->zoom_email) : null
             ]);
         }
 
@@ -68,8 +69,8 @@ class CreateZoomMeetingRecurring
     public function weekIteration($reservations, $request)
     {
         $reservationsTotal  = count($reservations);
-        $daysTotal          = count((array)$request->days);
-        $assetIdsTotal      = count((array) $request->asset_ids);
+        $daysTotal          = count($request->days);
+        $assetIdsTotal      = count($request->asset_ids);
 
         return (int) round(($reservationsTotal / $daysTotal) / $assetIdsTotal);
     }
@@ -112,7 +113,7 @@ class CreateZoomMeetingRecurring
             case 'DAILY':
             case 'WEEKLY':
                 $recurrence = [
-                    'type' => 2,
+                    'type' => ZoomMeetingRecurringTypeEnum::WEEKLY(),
                     'repeat_interval' => ($request->type == 'daily') ? 1 : $request->week,
                     "weekly_days" => join(",", $zoomDay),
                     "end_times" => $weekIteration
@@ -121,7 +122,7 @@ class CreateZoomMeetingRecurring
 
             case 'MONTHLY':
                 $recurrence = [
-                    "type" => 3,
+                    "type" => ZoomMeetingRecurringTypeEnum::MONTHLY(),
                     "repeat_interval" => $request->month,
                     "monthly_week" => $request->week,
                     "monthly_week_day" => $zoomDay[0],
