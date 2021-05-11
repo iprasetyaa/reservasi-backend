@@ -70,17 +70,14 @@ class ReservationRecurringController extends Controller
     protected function createReservation($request, $timeDetails)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
-        $date = Carbon::parse($timeDetails['date']);
         $reservations = [];
 
-        if ($date->gte($request->start_date)) {
-            foreach ($assets as $asset) {
-                $reservation = $this->storeData($request, $asset, $timeDetails);
+        foreach ($assets as $asset) {
+            $reservation = $this->storeData($request, $asset, $timeDetails);
 
-                $reservations[] = $reservation->id;
+            $reservations[] = $reservation->id;
 
-                event(new AfterReservation($reservation, $asset));
-            }
+            event(new AfterReservation($reservation, $asset));
         }
 
         return $reservations;
@@ -123,16 +120,18 @@ class ReservationRecurringController extends Controller
 
             $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
 
-            throw_if(
-                !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
-                in_array($date->dayOfWeek, $request->days),
-                new NotAvailableAssetException()
-            );
+            if ($date->gte($request->start_date)) {
+                throw_if(
+                    !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
+                    in_array($date->dayOfWeek, $request->days),
+                    new NotAvailableAssetException()
+                );
 
-            $reservation = $this->createReservation($request, $timeDetails);
+                $reservation = $this->createReservation($request, $timeDetails);
 
-            if (count($reservation)) {
-                $created[] = $reservation;
+                if (count($reservation)) {
+                    $created[] = $reservation;
+                }
             }
 
             $this->incrementDate($request, $date);
