@@ -55,10 +55,8 @@ class ReservationRecurringController extends Controller
             DB::rollback();
             throw $e->validationException();
         } catch (\Exception $e) {
-            echo $e;
-            die;
             DB::rollback();
-            return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -73,15 +71,11 @@ class ReservationRecurringController extends Controller
     protected function createReservation($request, $timeDetails, $recurringId)
     {
         $assets = Asset::whereIn('id', $request->asset_ids)->get();
-        $date = Carbon::parse($timeDetails['date']);
         $reservations = [];
 
-        if ($date->gte($request->start_date)) {
-            foreach ($assets as $asset) {
-                $reservation = $this->storeData($request, $asset, $recurringId, $timeDetails);
-
-                $reservations[] = $reservation->id;
-            }
+        foreach ($assets as $asset) {
+            $reservation = $this->storeData($request, $asset, $recurringId, $timeDetails);
+            $reservations[] = $reservation->id;
         }
 
         return $reservations;
@@ -122,8 +116,30 @@ class ReservationRecurringController extends Controller
                 $date = $date->nthOfMonth($request->week, $request->days[0]);
             }
 
-            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+            $reservation = $this->listReservation($request, $date, $recurringId);
 
+            if ($reservation) {
+                $created[] = $reservation;
+            }
+
+            $this->incrementDate($request, $date);
+        }
+
+        return $created;
+    }
+
+    /**
+     * List reservation
+     *
+     * @param  Request $request
+     * @param  Date $date
+     * @return array
+     */
+    protected function listReservation($request, $date, $recurringId)
+    {
+        $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+
+        if ($date->gte($request->start_date)) {
             throw_if(
                 !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
                 in_array($date->dayOfWeek, $request->days),
@@ -132,14 +148,8 @@ class ReservationRecurringController extends Controller
 
             $reservation = $this->createReservation($request, $timeDetails, $recurringId);
 
-            if (count($reservation)) {
-                $created[] = $reservation;
-            }
-
-            $this->incrementDate($request, $date);
+            return $reservation;
         }
-
-        return $created;
     }
 
     /**
