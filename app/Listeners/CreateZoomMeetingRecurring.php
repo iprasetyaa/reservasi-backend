@@ -178,9 +178,10 @@ class CreateZoomMeetingRecurring
      */
     public function updateReservation($reservation, $createZoomMeeting)
     {
-        return Reservation::where('recurring_id', $reservation->recurring_id)
-                    ->where('asset_id', $reservation->asset->id)
-                    ->update(['join_url' => $createZoomMeeting->join_url]);
+        return tap(Reservation::where('recurring_id', $reservation->recurring_id)
+                    ->where('asset_id', $reservation->asset->id))
+                    ->update(['join_url' => $createZoomMeeting->join_url])
+                    ->first();
     }
 
     /**
