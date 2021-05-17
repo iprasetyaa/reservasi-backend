@@ -41,18 +41,20 @@ class CreateZoomMeetingRecurring
         foreach ($firstReservation as $item) {
             $reservation = Reservation::where('id', $item)->first();
             $asset = $reservation->asset;
+            $userZoom = null;
 
             if ($asset->resource_type == ResourceTypeEnum::online()) {
                 $weekIteration      = $this->weekIteration($reservations, $request);
                 $zoomDay            = $this->zoomDay($request);
                 $recurrence         = $this->zoomRecurrence($request, $zoomDay, $weekIteration);
                 $createZoomMeeting  = $this->createZoom($asset, $reservation, $recurrence);
-                $this->updateReservation($reservation, $createZoomMeeting);
+                $userZoom           = Zoom::user()->find($reservation->asset->zoom_email);
+                $reservation        = $this->updateReservation($reservation, $createZoomMeeting);
             }
 
             array_push($data, [
-                'reservation' => Reservation::where('id', $item)->first(),
-                'user' => isset($createZoomMeeting) ? Zoom::user()->find($reservation->asset->zoom_email) : null
+                'reservation' => $reservation,
+                'user' => $userZoom
             ]);
         }
 
@@ -176,7 +178,7 @@ class CreateZoomMeetingRecurring
      */
     public function updateReservation($reservation, $createZoomMeeting)
     {
-        Reservation::where('recurring_id', $reservation->recurring_id)
+        return Reservation::where('recurring_id', $reservation->recurring_id)
                     ->where('asset_id', $reservation->asset->id)
                     ->update(['join_url' => $createZoomMeeting->join_url]);
     }
