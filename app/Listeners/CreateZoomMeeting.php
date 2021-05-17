@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\AfterReservation;
 use App\Enums\ResourceTypeEnum;
+use App\Enums\ZoomMeetingTypeEnum;
 use MacsiDigital\Zoom\Facades\Zoom;
 
 class CreateZoomMeeting
@@ -34,7 +35,7 @@ class CreateZoomMeeting
             $meetings = Zoom::user()->find($asset->zoom_email)->meetings()->create([
                 'topic' => $reservation->title,
                 'duration' => $timeInMinute,
-                'type' => '2',
+                'type' => ZoomMeetingTypeEnum::SCHEDULEDMEETING(),
                 'start_time' => $reservation->start_time,
                 'timezone' => 'Asia/Jakarta',
                 'password' => config('zoom.join_password'),

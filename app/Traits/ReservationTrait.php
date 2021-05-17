@@ -47,9 +47,10 @@ trait ReservationTrait
      * @param  Array $timeDetails
      * @return Reservation
      */
-    public function storeData($request, $asset, $timeDetails = [])
+    public function storeData($request, $asset, $reccuringId = null, $timeDetails = [])
     {
         return Reservation::create($request->validated() + $timeDetails + [
+            'recurring_id' => $reccuringId,
             'user_id_reservation' => $request->user()->uuid,
             'user_fullname' => $request->user()->name,
             'username' => $request->user()->username,
