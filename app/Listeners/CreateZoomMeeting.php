@@ -35,7 +35,7 @@ class CreateZoomMeeting
             $meetings = Zoom::user()->find($asset->zoom_email)->meetings()->create([
                 'topic' => $reservation->title,
                 'duration' => $timeInMinute,
-                'type' => ZoomMeetingTypeEnum::SCHEDULED_MEETING(),
+                'type' => ZoomMeetingTypeEnum::SCHEDULEDMEETING(),
                 'start_time' => $reservation->start_time,
                 'timezone' => 'Asia/Jakarta',
                 'password' => config('zoom.join_password'),
