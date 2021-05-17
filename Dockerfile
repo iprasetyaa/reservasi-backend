@@ -76,6 +76,8 @@ COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
 RUN php /usr/local/bin/composer install --no-dev --optimize-autoloader
 
 RUN php artisan storage:link
+RUN php artisan config:cache
+RUN php artisan route:cache
 
 # Expose the port nginx is reachable on
 EXPOSE 8080
