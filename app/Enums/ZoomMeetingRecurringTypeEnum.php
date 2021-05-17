@@ -10,11 +10,6 @@ class ZoomMeetingRecurringTypeEnum extends Enum
     {
         return new class () extends ZoomMeetingRecurringTypeEnum
         {
-            public function getIndex(): int
-            {
-                return 0;
-            }
-
             public function getValue(): string
             {
                 return 1;
@@ -26,11 +21,6 @@ class ZoomMeetingRecurringTypeEnum extends Enum
     {
         return new class () extends ZoomMeetingRecurringTypeEnum
         {
-            public function getIndex(): int
-            {
-                return 1;
-            }
-
             public function getValue(): string
             {
                 return 2;
@@ -42,11 +32,6 @@ class ZoomMeetingRecurringTypeEnum extends Enum
     {
         return new class () extends ZoomMeetingRecurringTypeEnum
         {
-            public function getIndex(): int
-            {
-                return 2;
-            }
-
             public function getValue(): string
             {
                 return 3;

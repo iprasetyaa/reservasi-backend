@@ -149,7 +149,7 @@ class CreateZoomMeetingRecurring
         $meeting = Zoom::user()->find($asset->zoom_email)->meetings()->make([
             'topic' => $reservation->title,
             'duration' => $this->timeInMinute($reservation),
-            'type' => ZoomMeetingTypeEnum::RECURRINGMEETINGFIXEDTIME(),
+            'type' => ZoomMeetingTypeEnum::RECURRINGMEETINGFIX(),
             'start_time' => $reservation->start_time,
             'timezone' => 'Asia/Jakarta',
             'password' => config('zoom.join_password'),

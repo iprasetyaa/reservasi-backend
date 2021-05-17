@@ -173,20 +173,19 @@ class ReservationRecurringController extends Controller
         }
     }
 
+    /**
+     * generateRecurringId
+     *
+     * @return void
+     */
     public function generateRecurringId()
     {
-        $getLastReservation = Reservation::latest()->first();
-        $recurringId = optional($getLastReservation)->recurring_id + 1 ?? 1;
+        $getLastReservation = Reservation::orderBy('recurring_id', 'desc')->value('recurring_id');
+        $recurringId = $getLastReservation->recurring_id ?? 0;
 
         do {
-            $checkRecurringId = Reservation::where('recurring_id', $recurringId)->first();
-            if (!$checkRecurringId) {
-                $available = true;
-            } else {
-                $available = false;
-                $recurringId++;
-            }
-        } while ($available === false);
+            $recurringId++;
+        } while (Reservation::where('recurring_id', $recurringId)->exists());
 
         return $recurringId;
     }

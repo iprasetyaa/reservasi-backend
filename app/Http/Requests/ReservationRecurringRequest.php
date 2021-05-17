@@ -34,7 +34,7 @@ class ReservationRecurringRequest extends FormRequest
 
         return [
             'title' => 'required',
-            'asset_ids' => 'required|array',
+            'asset_ids' => 'required|array|min:1',
             'asset_ids.*' => 'exists:assets,id,deleted_at,NULL',
             'start_date' => "required|date|date_format:Y-m-d|after:{$date}",
             'end_date' => "required|date|date_format:Y-m-d|after:start_date|before:{$maxDate}",
