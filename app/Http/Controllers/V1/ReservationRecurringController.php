@@ -55,6 +55,8 @@ class ReservationRecurringController extends Controller
             DB::rollback();
             throw $e->validationException();
         } catch (\Exception $e) {
+            echo $e;
+            die;
             DB::rollback();
             return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -164,6 +166,18 @@ class ReservationRecurringController extends Controller
     public function generateRecurringId()
     {
         $getLastReservation = Reservation::latest()->first();
-        return optional($getLastReservation)->recurring_id + 1 ?? 1;
+        $recurringId = optional($getLastReservation)->recurring_id + 1 ?? 1;
+
+        do {
+            $checkRecurringId = Reservation::where('recurring_id', $recurringId)->first();
+            if (!$checkRecurringId) {
+                $available = true;
+            } else {
+                $available = false;
+                $recurringId++;
+            }
+        } while ($available === false);
+
+        return $recurringId;
     }
 }
