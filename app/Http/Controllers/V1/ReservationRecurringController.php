@@ -118,26 +118,40 @@ class ReservationRecurringController extends Controller
                 $date = $date->nthOfMonth($request->week, $request->days[0]);
             }
 
-            $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+            $reservation = $this->listReservation($request, $date);
 
-            if ($date->gte($request->start_date)) {
-                throw_if(
-                    !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
-                    in_array($date->dayOfWeek, $request->days),
-                    new NotAvailableAssetException()
-                );
-
-                $reservation = $this->createReservation($request, $timeDetails);
-
-                if (count($reservation)) {
-                    $created[] = $reservation;
-                }
+            if ($reservation) {
+                $created[] = $reservation;
             }
 
             $this->incrementDate($request, $date);
         }
 
         return $created;
+    }
+
+    /**
+     * List reservation
+     *
+     * @param  Request $request
+     * @param  Date $date
+     * @return array
+     */
+    protected function listReservation($request, $date)
+    {
+        $timeDetails = $this->createTimeDetails($date, $request->from, $request->to);
+
+        if ($date->gte($request->start_date)) {
+            throw_if(
+                !$this->isAvailableAsset($request->asset_ids, $timeDetails) &&
+                in_array($date->dayOfWeek, $request->days),
+                new NotAvailableAssetException()
+            );
+
+            $reservation = $this->createReservation($request, $timeDetails);
+
+            return $reservation;
+        }
     }
 
     /**
