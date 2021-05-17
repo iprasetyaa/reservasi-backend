@@ -56,7 +56,7 @@ class ReservationRecurringController extends Controller
             throw $e->validationException();
         } catch (\Exception $e) {
             DB::rollback();
-            return response($e, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
