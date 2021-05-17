@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Events\AfterReservation;
+use App\Events\AfterReservationRecurringCreated;
 use App\Models\Asset;
 use App\User;
 use Carbon\Carbon;
@@ -30,7 +30,7 @@ class ReservationDailyRecurringTest extends TestCase
 
     public function testStoreDailyRecurringReservation()
     {
-        $this->expectsEvents(AfterReservation::class);
+        $this->expectsEvents(AfterReservationRecurringCreated::class);
         // 1. Mocking data
         $employee = $this->employee;
         $data = [
