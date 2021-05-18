@@ -111,11 +111,11 @@ class ReservationRecurringController extends Controller
     {
         $endDate = Carbon::parse($request->end_date);
 
-        while ($date->lte($endDate)) {
-            if (strcasecmp($request->recurringType, ReservationRecurringTypeEnum::MONTHLY()) == 0) {
-                $date = $date->nthOfMonth($request->week, $request->days[0]);
-            }
+        if (strtoupper($request->recurringType) == ReservationRecurringTypeEnum::MONTHLY()) {
+            $date->nthOfMonth($request->week, $request->days[0]);
+        }
 
+        while ($date->lte($endDate)) {
             $reservation = $this->listReservation($request, $date, $recurringId);
 
             if ($reservation) {
@@ -166,7 +166,9 @@ class ReservationRecurringController extends Controller
                 return $date->addWeeks($request->week);
 
             case ReservationRecurringTypeEnum::MONTHLY():
-                return $date->addMonths($request->month);
+                return $date
+                    ->addMonths($request->month)
+                    ->nthOfMonth($request->week, $request->days[0]);
 
             default:
                 return $date->addWeeks(1);
