@@ -2,10 +2,11 @@
 
 app=${DOCKER_APP:-app}
 
+php /var/www/html/artisan optimize
+
 if [ "$app" = "app" ]; then
 
     echo "Running the app..."
-    php /var/www/html/artisan optimize
     /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 
 elif [ "$app" = "queue" ]; then
