@@ -111,7 +111,7 @@ class ReservationRecurringController extends Controller
     {
         $endDate = Carbon::parse($request->end_date);
 
-        if (strcasecmp($request->recurringType, ReservationRecurringTypeEnum::MONTHLY()) == 0) {
+        if (strtoupper($request->recurringType) == ReservationRecurringTypeEnum::MONTHLY()) {
             $date->nthOfMonth($request->week, $request->days[0]);
         }
 
