@@ -44,9 +44,9 @@ class CreateZoomMeetingRecurring
             $userZoom = null;
 
             if ($asset->resource_type == ResourceTypeEnum::online()) {
-                $weekIteration      = $this->weekIteration($reservations, $request);
+                $endTimes           = count($reservations);
                 $zoomDay            = $this->zoomDay($request);
-                $recurrence         = $this->zoomRecurrence($request, $zoomDay, $weekIteration);
+                $recurrence         = $this->zoomRecurrence($request, $zoomDay, $endTimes);
                 $createZoomMeeting  = $this->createZoom($asset, $reservation, $recurrence);
                 $userZoom           = Zoom::user()->find($reservation->asset->zoom_email);
                 $reservation        = $this->updateReservation($reservation, $createZoomMeeting);
@@ -60,22 +60,6 @@ class CreateZoomMeetingRecurring
 
         $this->sendMailRecurring($recurringId, $request, $data);
         return $reservations;
-    }
-
-    /**
-     * weekIteration
-     *
-     * @param  mixed $reservations
-     * @param  mixed $request
-     * @return integer
-     */
-    public function weekIteration($reservations, $request)
-    {
-        $reservationsTotal  = count($reservations);
-        $daysTotal          = count($request->days);
-        $assetIdsTotal      = count($request->asset_ids);
-
-        return (int) round(($reservationsTotal / $daysTotal) / $assetIdsTotal);
     }
 
     /**
@@ -107,10 +91,10 @@ class CreateZoomMeetingRecurring
      *
      * @param  mixed $request
      * @param  mixed $zoomDay
-     * @param  mixed $weekIteration
+     * @param  mixed $endTimes
      * @return array
      */
-    public function zoomRecurrence($request, $zoomDay, $weekIteration)
+    public function zoomRecurrence($request, $zoomDay, $endTimes)
     {
         switch ($request->repeat_type) {
             case 'DAILY':
@@ -119,7 +103,7 @@ class CreateZoomMeetingRecurring
                     'type' => ZoomMeetingRecurringTypeEnum::WEEKLY(),
                     'repeat_interval' => ($request->type == 'daily') ? 1 : $request->week,
                     "weekly_days" => join(",", $zoomDay),
-                    "end_times" => $weekIteration
+                    "end_times" => $endTimes
                 ];
                 break;
 
@@ -129,7 +113,7 @@ class CreateZoomMeetingRecurring
                     "repeat_interval" => $request->month,
                     "monthly_week" => $request->week,
                     "monthly_week_day" => $zoomDay[0],
-                    "end_times" => $weekIteration
+                    "end_times" => $endTimes
                 ];
                 break;
         }
