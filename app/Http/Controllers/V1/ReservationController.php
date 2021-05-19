@@ -115,7 +115,8 @@ class ReservationController extends Controller
         $reservation->update($request->validated() + [
             'asset_name' => $asset->name,
             'asset_description' => $asset->description,
-            'user_id_updated' => $request->user()->uuid
+            'user_id_updated' => $request->user()->uuid,
+            'join_url' => ($asset->resource_type == 'offline') ? null :  $reservation->join_url
         ]);
         event(new AfterReservation($reservation, $asset));
 
