@@ -35,7 +35,8 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get('reservation/list', 'ReservationListAllController')->name('reservation.list');
         Route::apiResource('asset', 'AssetController');
         Route::apiResource('reservation', 'ReservationController');
-        Route::post('reservation/{recurringType}', 'ReservationRecurringController')->name('reservation.recurring');
+        Route::post('reservation/{recurringType}', 'ReservationRecurringController@store')->name('reservation.recurring');
+        Route::delete('reservation/recurring/{reservation:recurring_id}', 'ReservationRecurringController@destroy')->name('delete.recurring');
         Route::put('command-center-reservation/{command_center_reservation}/approval', 'CommandCenterReservationApprovalController');
         Route::apiResource('command-center-reservation', 'CommandCenterReservationController');
         Route::apiResource('command-center-shift', 'CommandCenterShiftController')

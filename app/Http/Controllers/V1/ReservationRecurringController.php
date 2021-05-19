@@ -31,12 +31,12 @@ class ReservationRecurringController extends Controller
     }
 
     /**
-     * Handle the incoming request.
+     * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  ReservationRecurringRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(ReservationRecurringRequest $request)
+    public function store(ReservationRecurringRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -58,6 +58,19 @@ class ReservationRecurringController extends Controller
             DB::rollback();
             return response(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Remove all records by recurring id from storage.
+     *
+     * @param  Reservation  $reservation
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Reservation $reservation)
+    {
+        Reservation::where('recurring_id', $reservation->recurring_id)->delete();
+
+        return response()->json(['message' => 'deleted']);
     }
 
     /**
