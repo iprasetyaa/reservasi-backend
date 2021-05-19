@@ -13,6 +13,7 @@ use App\Models\Reservation;
 use App\Traits\ReservationTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -96,11 +97,11 @@ class ReservationRecurringController extends Controller
             $reservationCreated = $this->listCreatedReservation($request, $date, $reservationCreated, $recurringId);
         }
 
-        usort($reservationCreated, function ($a, $b) {
-            return $a[0]['date'] <=> $b[0]['date'];
+        $collection = collect($reservationCreated)->sort(function ($first, $second) {
+            return Arr::first($first)['date'] <=> Arr::first($second)['date'];
         });
 
-        return $reservationCreated;
+        return $collection->values()->all();
     }
 
     /**
