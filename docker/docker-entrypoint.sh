@@ -2,6 +2,8 @@
 
 app=${DOCKER_APP:-app}
 
+php /var/www/html/artisan optimize
+
 if [ "$app" = "app" ]; then
 
     echo "Running the app..."
