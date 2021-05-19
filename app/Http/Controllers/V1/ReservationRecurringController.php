@@ -21,16 +21,6 @@ class ReservationRecurringController extends Controller
     use ReservationTrait;
 
     /**
-     * __construct
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->authorizeResource(Reservation::class);
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  ReservationRecurringRequest  $request
@@ -63,12 +53,12 @@ class ReservationRecurringController extends Controller
     /**
      * Remove all records by recurring id from storage.
      *
-     * @param  Reservation  $reservation
+     * @param  string $recurringId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Reservation $reservation)
+    public function destroy($recurringId)
     {
-        Reservation::where('recurring_id', $reservation->recurring_id)->delete();
+        Reservation::where('recurring_id', $recurringId)->delete();
 
         return response()->json(['message' => 'deleted']);
     }
