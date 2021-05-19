@@ -39,7 +39,7 @@ class CreateZoomMeetingRecurring
         $data = [];
 
         foreach ($firstReservation as $item) {
-            $reservation = Reservation::where('id', $item)->first();
+            $reservation = Reservation::where('id', $item['id'])->first();
             $asset = $reservation->asset;
             $userZoom = null;
 
