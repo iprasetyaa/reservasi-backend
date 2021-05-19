@@ -75,7 +75,7 @@ class ReservationRecurringController extends Controller
 
         foreach ($assets as $asset) {
             $reservation = $this->storeData($request, $asset, $recurringId, $timeDetails);
-            $reservations[] = $reservation->id;
+            $reservations[] = ['id' => $reservation->id, 'date' => $reservation->date];
         }
 
         return $reservations;
@@ -95,6 +95,10 @@ class ReservationRecurringController extends Controller
         foreach ($initDates as $date) {
             $reservationCreated = $this->listCreatedReservation($request, $date, $reservationCreated, $recurringId);
         }
+
+        usort($reservationCreated, function ($a, $b) {
+            return $a[0]['date'] <=> $b[0]['date'];
+        });
 
         return $reservationCreated;
     }
