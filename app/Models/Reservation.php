@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ReservationRecurringTypeEnum;
 use App\Enums\ReservationStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,6 +16,7 @@ class Reservation extends Model
 
     protected $fillable = [
         'recurring_id',
+        'repeat_type',
         'user_id_reservation',
         'user_fullname',
         'username',
@@ -42,7 +44,8 @@ class Reservation extends Model
     ];
 
     protected $enums = [
-        'approval_status' => ReservationStatusEnum::class . ':nullable'
+        'approval_status' => ReservationStatusEnum::class . ':nullable',
+        'repeat_type' => ReservationRecurringTypeEnum::class . ':nullable',
     ];
 
     protected $casts = [

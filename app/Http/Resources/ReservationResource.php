@@ -16,6 +16,8 @@ class ReservationResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'recurring_id' => $this->recurring_id,
+            'repeat_type' => $this->repeat_type,
             'title' => $this->title,
             'description' => $this->description,
             'user_fullname' => $this->user_fullname,
