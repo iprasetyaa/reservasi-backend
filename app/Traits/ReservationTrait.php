@@ -75,16 +75,13 @@ trait ReservationTrait
     protected function createInitialDates($startDate, $days)
     {
         $initDates = [];
-        $date = Carbon::parse($startDate)->copy()->startOfWeek();
+        $date = Carbon::parse($startDate)
+            ->copy()
+            ->startOfWeek()
+            ->addDays(-1);
 
         foreach ($days as $day) {
-            if ($day === 0) {
-                $additionNumber = 6;
-            } else {
-                $additionNumber = $day - 1;
-            }
-
-            $initDates[] = $date->copy()->addDays($additionNumber);
+            $initDates[] = $date->copy()->addDays($day);
         }
 
         return $initDates;
