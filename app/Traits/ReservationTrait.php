@@ -67,6 +67,7 @@ trait ReservationTrait
      * Functoin to create the initial dates in a week
      *
      * The week started by Sunday with index 0, finished by Saturday with index 6
+     * For monthly recurring, the start day is the first day in the month
      *
      * @param  Request $request
      * @return Array
