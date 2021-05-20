@@ -39,7 +39,7 @@ class CreateZoomMeetingRecurring
         $data = [];
 
         foreach ($firstReservation as $item) {
-            $reservation = Reservation::where('id', $item)->first();
+            $reservation = Reservation::where('id', $item['id'])->first();
             $asset = $reservation->asset;
             $userZoom = null;
 
@@ -178,7 +178,7 @@ class CreateZoomMeetingRecurring
      */
     public function sendMailRecurring($recurringId, $request, $data)
     {
-        $lastRecurring = Reservation::where('recurring_id', $recurringId)->orderBy('id', 'desc')->first();
+        $lastRecurring = Reservation::where('recurring_id', $recurringId)->orderBy('date', 'desc')->first();
         Mail::to($request->user()->email)->send(new ReservationApprovalMail($data, $lastRecurring, $request->all()));
     }
 }
