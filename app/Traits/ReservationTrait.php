@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\ReservationRecurringTypeEnum;
 use App\Enums\ReservationStatusEnum;
 use App\Models\Reservation;
 use Carbon\Carbon;
@@ -67,17 +68,22 @@ trait ReservationTrait
      *
      * The week started by Sunday with index 0, finished by Saturday with index 6
      *
-     * @param  Date $startDate
-     * @param  Array $days
+     * @param  Request $request
      * @return Array
      */
-    protected function createInitialDates($startDate, $days)
+    protected function createInitialDates($request)
     {
         $initDates = [];
-        $date = Carbon::parse($startDate)
-            ->copy()
-            ->startOfWeek()
-            ->addDays(-1);
+        $startDate = $request->start_date;
+        $days = $request->days;
+        $type = $request->repeat_type;
+        $date = Carbon::parse($startDate)->copy();
+
+        if ($type == ReservationRecurringTypeEnum::MONTHLY()) {
+            $date->startOfMonth();
+        } else {
+            $date->startOfWeek()->addDays(-1);
+        }
 
         foreach ($days as $day) {
             $initDates[] = $date->copy()->addDays($day);

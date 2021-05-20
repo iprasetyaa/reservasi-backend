@@ -90,7 +90,7 @@ class ReservationRecurringController extends Controller
      */
     protected function storeReservation($request, $recurringId)
     {
-        $initDates = $this->createInitialDates($request->start_date, $request->days);
+        $initDates = $this->createInitialDates($request);
         $reservationCreated = [];
 
         foreach ($initDates as $date) {
