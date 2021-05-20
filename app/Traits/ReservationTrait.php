@@ -75,15 +75,19 @@ trait ReservationTrait
     protected function createInitialDates($request)
     {
         $initDates = [];
-        $startDate = $request->start_date;
-        $days = $request->days;
         $type = $request->repeat_type;
+        $days = $request->days;
+        $startDate = $request->start_date;
         $date = Carbon::parse($startDate)->copy();
 
+        // Sunday as the start day of the week
+        if (!$date->isDayOfWeek('Sunday')) {
+            $date->startOfWeek()->addDays(-1);
+        }
+
+        // The first day of the month as the start day
         if ($type == ReservationRecurringTypeEnum::MONTHLY()) {
             $date->startOfMonth();
-        } else {
-            $date->startOfWeek()->addDays(-1);
         }
 
         foreach ($days as $day) {
