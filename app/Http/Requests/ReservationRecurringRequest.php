@@ -52,4 +52,24 @@ class ReservationRecurringRequest extends FormRequest
             'month' => "numeric|required_if:repeat_type,{$monthlyType}|nullable"
         ];
     }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void`
+     */
+    protected function prepareForValidation()
+    {
+        $daysFormated = array();
+        foreach ($this->days as $value) {
+            array_push($daysFormated, array(
+                'day' => $value,
+                'name' => Carbon::create(Carbon::getDays()[$value])->locale('id_ID')->dayName
+            ));
+        }
+
+        $this->merge([
+            'days_formated' => $daysFormated,
+        ]);
+    }
 }
