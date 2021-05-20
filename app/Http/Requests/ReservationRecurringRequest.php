@@ -46,7 +46,7 @@ class ReservationRecurringRequest extends FormRequest
                 'required_if:repeat,true',
                 new EnumValueRule(ReservationRecurringTypeEnum::class)
             ],
-            'days' => 'array|required_if:repeat,true|max:7 ',
+            'days' => 'array|required_if:repeat,true|max:7',
             'days.*'  => 'numeric|distinct|min:0|max:6',
             'week' => "numeric|required_if:repeat_type,{$weeklyType},{$monthlyType}|nullable",
             'month' => "numeric|required_if:repeat_type,{$monthlyType}|nullable"
