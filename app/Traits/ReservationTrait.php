@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\ReservationRecurringTypeEnum;
 use App\Enums\ReservationStatusEnum;
 use App\Models\Reservation;
 use Carbon\Carbon;
@@ -66,18 +67,28 @@ trait ReservationTrait
      * Functoin to create the initial dates in a week
      *
      * The week started by Sunday with index 0, finished by Saturday with index 6
+     * For monthly recurring, the start day is the first day of the month
      *
-     * @param  Date $startDate
-     * @param  Array $days
+     * @param  Request $request
      * @return Array
      */
-    protected function createInitialDates($startDate, $days)
+    protected function createInitialDates($request)
     {
         $initDates = [];
-        $date = Carbon::parse($startDate)
-            ->copy()
-            ->startOfWeek()
-            ->addDays(-1);
+        $type = $request->repeat_type;
+        $days = $request->days;
+        $startDate = $request->start_date;
+        $date = Carbon::parse($startDate)->copy();
+
+        // Sunday as the start day of the week
+        if (!$date->isDayOfWeek('Sunday')) {
+            $date->startOfWeek()->addDays(-1);
+        }
+
+        // The first day of the month as the start day
+        if ($type == ReservationRecurringTypeEnum::MONTHLY()) {
+            $date->startOfMonth();
+        }
 
         foreach ($days as $day) {
             $initDates[] = $date->copy()->addDays($day);
