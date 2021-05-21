@@ -13,6 +13,7 @@ use App\Models\Reservation;
 use App\Traits\ReservationTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -78,7 +79,7 @@ class ReservationRecurringController extends Controller
 
         foreach ($assets as $asset) {
             $reservation = $this->storeData($request, $asset, $recurringId, $timeDetails);
-            $reservations[] = $reservation->id;
+            $reservations[] = ['id' => $reservation->id, 'date' => $reservation->date];
         }
 
         return $reservations;
@@ -92,14 +93,18 @@ class ReservationRecurringController extends Controller
      */
     protected function storeReservation($request, $recurringId)
     {
-        $initDates = $this->createInitialDates($request->start_date, $request->days);
+        $initDates = $this->createInitialDates($request);
         $reservationCreated = [];
 
         foreach ($initDates as $date) {
             $reservationCreated = $this->listCreatedReservation($request, $date, $reservationCreated, $recurringId);
         }
 
-        return $reservationCreated;
+        $collection = collect($reservationCreated)->sort(function ($first, $second) {
+            return Arr::first($first)['date'] <=> Arr::first($second)['date'];
+        });
+
+        return $collection->values()->all();
     }
 
     /**

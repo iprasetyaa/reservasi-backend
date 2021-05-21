@@ -6,7 +6,7 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 - Nama : {{ $data[0]['reservation']->user_fullname }}
 - Judul Kegiatan: {{ $data[0]['reservation']->title }}
 - Catatan Kegiatan: {{ $data[0]['reservation']->description ?? '-' }}
-- Hari: @foreach ($request['days'] as $day) {{ \Carbon\Carbon::create($day)->locale('id_ID')->dayName . ' ' }} @endforeach
+- Hari: @foreach ($request['days_formated'] as $day) {{ $day['name'] }} @endforeach
 <br>
 @if ($request['repeat_type'] === 'WEEKLY')
 - Berulang: {{ $request['week'] }} minggu sekali
