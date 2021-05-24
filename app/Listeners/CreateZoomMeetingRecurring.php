@@ -165,6 +165,7 @@ class CreateZoomMeetingRecurring
         return tap(Reservation::where('recurring_id', $reservation->recurring_id)
                     ->where('asset_id', $reservation->asset->id))
                     ->update(['join_url' => $createZoomMeeting->join_url])
+                    ->orderBy('date', 'asc')
                     ->first();
     }
 
