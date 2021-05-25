@@ -14,7 +14,7 @@ class AlterReservationsTableAddHolder extends Migration
     public function up()
     {
         Schema::table('reservations', function (Blueprint $table) {
-            $table->string('holder')->after('email')->index();
+            $table->string('holder')->after('email')->nullable()->index();
         });
     }
 
