@@ -18,6 +18,8 @@ class ReservationResource extends JsonResource
             'id' => $this->id,
             'recurring_id' => $this->recurring_id,
             'repeat_type' => $this->repeat_type,
+            'email' => $this->email,
+            'holder' => $this->holder,
             'title' => $this->title,
             'description' => $this->description,
             'user_fullname' => $this->user_fullname,

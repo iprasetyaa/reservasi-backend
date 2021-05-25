@@ -41,6 +41,10 @@ class SendReservationEmail
             }
 
             Mail::to($reservations[0]->email)->send(new ReservationApprovalMail($data));
+
+            if ($reservations[0]->holder != null) {
+                Mail::to($reservations[0]->holder)->send(new ReservationApprovalMail($data));
+            }
         } catch (\Exception $e) {
             return response()->json(["message" => $e]);
         }

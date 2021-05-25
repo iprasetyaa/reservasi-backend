@@ -41,7 +41,8 @@ class EditReservationRequest extends FormRequest
             'date' => "required|date|date_format:Y-m-d|after:{$date}",
             'start_time' => "required|date|date_format:Y-m-d H:i",
             'end_time' => 'required|date|date_format:Y-m-d H:i|after:start_time',
-            'description' => 'nullable'
+            'description' => 'nullable',
+            'holder' => 'nullable|email:rfc,dns'
         ];
     }
 }
