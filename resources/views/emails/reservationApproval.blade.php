@@ -5,7 +5,7 @@ Terima kasih Anda sudah melakukan reservasi pada Aplikasi Digiteam Reservasi Ase
 Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 - Nama: {{ $data[0]['reservation']->user_fullname }}
 @if ($data[0]['reservation']->holder)
-- Holder: {{ $data[0]['reservation']->holder }}
+- Email Penanggung Jawab: {{ $data[0]['reservation']->holder }}
 @endif
 - Judul Kegiatan: {{ $data[0]['reservation']->title }}
 - Catatan Kegiatan: {{ $data[0]['reservation']->description ?? '-' }}
