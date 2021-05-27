@@ -181,5 +181,10 @@ class CreateZoomMeetingRecurring
     {
         $lastRecurring = Reservation::where('recurring_id', $recurringId)->orderBy('date', 'desc')->first();
         Mail::to($request->user()->email)->send(new ReservationApprovalMail($data, $lastRecurring, $request->all()));
+
+        if ($request->holder != null) {
+            Mail::to($request->holder)
+                ->send(new ReservationApprovalMail($data, $lastRecurring, $request->all()));
+        }
     }
 }
