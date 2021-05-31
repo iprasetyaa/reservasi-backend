@@ -17,7 +17,7 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 - Nama Ruangan: {{ $item['reservation']->asset_name }}
 @if($item['reservation']->join_url)
 - Meeting ID: {{ $item['user']->id }}
-- Password: {{ $item['user']->password }}
+- Passcode: {{ $item['user']->password }}
 - Host Key: {{ $item['user']->host_key }}
 - Link Invitation: {{ $item['reservation']->join_url }}
 @endif
