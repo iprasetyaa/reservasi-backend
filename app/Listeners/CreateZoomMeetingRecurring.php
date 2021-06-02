@@ -41,20 +41,20 @@ class CreateZoomMeetingRecurring
         foreach ($firstReservation as $item) {
             $reservation = Reservation::where('id', $item['id'])->first();
             $asset = $reservation->asset;
-            $userZoom = null;
+            $zoomData = null;
 
             if ($asset->resource_type == ResourceTypeEnum::online()) {
                 $endTimes           = count($reservations);
                 $zoomDay            = $this->zoomDay($request);
                 $recurrence         = $this->zoomRecurrence($request, $zoomDay, $endTimes);
                 $createZoomMeeting  = $this->createZoom($asset, $reservation, $recurrence);
-                $userZoom           = Zoom::user()->find($reservation->asset->zoom_email);
+                $zoomData           = $createZoomMeeting->find($createZoomMeeting->id);
                 $reservation        = $this->updateReservation($reservation, $createZoomMeeting);
             }
 
             array_push($data, [
                 'reservation' => $reservation,
-                'user' => $userZoom
+                'user' => $zoomData
             ]);
         }
 
