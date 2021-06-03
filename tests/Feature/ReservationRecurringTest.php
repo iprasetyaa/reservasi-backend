@@ -54,6 +54,59 @@ class ReservationRecurringTest extends TestCase
         $response->assertStatus(Response::HTTP_CREATED);
     }
 
+    public function testStoreWeeklyRecurringReservation()
+    {
+        $this->expectsEvents(AfterReservationRecurringCreated::class);
+        // 1. Mocking data
+        $employee = $this->employee;
+        $data = [
+            'title' => 'testing weekly',
+            'description' => 'testing weekly',
+            'asset_ids' => [$this->asset->id],
+            'start_date' => Carbon::now()->format('Y-m-d'),
+            'end_date' => Carbon::now()->addMonth()->format('Y-m-d'),
+            'from' => Carbon::now()->addMinutes(60)->format('H:i:s'),
+            'to' => Carbon::now()->addMinutes(90)->format('H:i:s'),
+            'repeat' => true,
+            'repeat_type' => 'WEEKLY',
+            'days' => [1, 2],
+            'week' => 2
+        ];
+
+        // 2. Hit Api Endpoint
+        $response = $this->actingAs($employee)->post(route('reservation.recurring', 'weekly'), $data);
+
+        // 3. Verify and Assertion
+        $response->assertStatus(Response::HTTP_CREATED);
+    }
+
+    public function testStoreMonthlyRecurringReservation()
+    {
+        $this->expectsEvents(AfterReservationRecurringCreated::class);
+        // 1. Mocking data
+        $employee = $this->employee;
+        $data = [
+            'title' => 'testing monthly',
+            'description' => 'testing monthly',
+            'asset_ids' => [$this->asset->id],
+            'start_date' => Carbon::now()->format('Y-m-d'),
+            'end_date' => Carbon::now()->addMonths(4)->format('Y-m-d'),
+            'from' => Carbon::now()->addMinutes(120)->format('H:i:s'),
+            'to' => Carbon::now()->addMinutes(150)->format('H:i:s'),
+            'repeat' => true,
+            'repeat_type' => 'MONTHLY',
+            'days' => [2],
+            'week' => 2,
+            'month' => 2
+        ];
+
+        // 2. Hit Api Endpoint
+        $response = $this->actingAs($employee)->post(route('reservation.recurring', 'monthly'), $data);
+
+        // 3. Verify and Assertion
+        $response->assertStatus(Response::HTTP_CREATED);
+    }
+
     public function testDestroyRecurringReservation()
     {
         // 1. Mocking data
