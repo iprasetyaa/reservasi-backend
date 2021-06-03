@@ -26,9 +26,9 @@ Melalui surat elektronik ini, berdasarkan data reservasi yang kami terima yaitu:
 @foreach ($data as $item)
 - Nama Ruangan: {{ $item['reservation']->asset_name }}
 @if($item['reservation']->join_url)
-- Meeting ID: {{ $item['user']->id }}
-- Passcode: {{ $item['user']->password }}
-- Host Key: {{ $item['user']->host_key }}
+- Meeting ID: {{ $item['zoom_data']['meeting_id'] }}
+- Passcode: {{ $item['zoom_data']['password'] }}
+- Host Key: {{ $item['zoom_data']['host_key'] }}
 - Link Invitation: {{ $item['reservation']->join_url }}
 @endif
 ---

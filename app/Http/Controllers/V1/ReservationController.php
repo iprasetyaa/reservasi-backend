@@ -84,14 +84,13 @@ class ReservationController extends Controller
 
             foreach ($assets as $asset) {
                 $reservation = $this->storeData($request, $asset);
-
-                event(new AfterReservation($reservation, $asset));
                 array_push($reservations, $reservation->id);
             }
 
             event(new AfterReservationCreated($reservations));
 
             DB::commit();
+            return response(null, Response::HTTP_CREATED);
         } catch (NotAvailableAssetException $e) {
             DB::rollback();
             throw $e->validationException();
@@ -99,8 +98,6 @@ class ReservationController extends Controller
             DB::rollback();
             return response()->json(['message' => 'internal_server_error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return response()->json(null, Response::HTTP_CREATED);
     }
 
     /**
@@ -118,7 +115,6 @@ class ReservationController extends Controller
             'user_id_updated' => $request->user()->uuid,
             'join_url' => ($asset->resource_type == 'offline') ? null :  $reservation->join_url
         ]);
-        event(new AfterReservation($reservation, $asset));
 
         $reservations = [$reservation->id];
         event(new AfterReservationCreated($reservations));
