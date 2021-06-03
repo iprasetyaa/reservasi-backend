@@ -2,8 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Events\AfterReservation;
-use App\Events\ZoomMeeting;
+use App\Events\AfterReservationCreated;
 use App\Mail\ReservationStoreMail;
 use App\Models\Asset;
 use App\Models\Reservation;
@@ -144,7 +143,7 @@ class ReservationTest extends TestCase
 
     public function testStoreReservation()
     {
-        $this->expectsEvents(AfterReservation::class);
+        $this->expectsEvents(AfterReservationCreated::class);
 
         Mail::fake();
         // 1. Mocking data
