@@ -9,11 +9,14 @@ use App\Events\AfterReservationRecurringCreated;
 use App\Mail\ReservationApprovalMail;
 use MacsiDigital\Zoom\Facades\Zoom;
 use App\Models\Reservation;
+use App\Traits\ReservationTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
 
 class CreateZoomMeetingRecurring
 {
+    use ReservationTrait;
+
     /**
      * Create the event listener.
      *
@@ -27,7 +30,7 @@ class CreateZoomMeetingRecurring
     /**
      * Handle the event.
      *
-     * @param  AfterReservation  $event
+     * @param  AfterReservationRecurringCreated  $event
      * @return void
      */
     public function handle(AfterReservationRecurringCreated $event)
@@ -44,17 +47,15 @@ class CreateZoomMeetingRecurring
             $zoomData = null;
 
             if ($asset->resource_type == ResourceTypeEnum::online()) {
-                $endTimes           = count($reservations);
                 $zoomDay            = $this->zoomDay($request);
-                $recurrence         = $this->zoomRecurrence($request, $zoomDay, $endTimes);
-                $createZoomMeeting  = $this->createZoom($asset, $reservation, $recurrence);
-                $zoomData           = $createZoomMeeting->find($createZoomMeeting->id);
-                $reservation        = $this->updateReservation($reservation, $createZoomMeeting);
+                $recurrence         = $this->zoomRecurrence($request, $zoomDay, count($reservations));
+                $zoomData           = $this->createZoom($asset, $reservation, $recurrence);
+                $reservation        = $this->updateReservation($reservation, $zoomData);
             }
 
             array_push($data, [
                 'reservation' => $reservation,
-                'user' => $zoomData
+                'zoom_data' => $zoomData,
             ]);
         }
 
@@ -131,8 +132,8 @@ class CreateZoomMeetingRecurring
      */
     public function createZoom($asset, $reservation, $recurrence)
     {
-        $user = Zoom::user()->find($asset->zoom_email);
-        $meeting = Zoom::user()->find($asset->zoom_email)->meetings()->make([
+        $user    = Zoom::user()->find($asset->zoom_email);
+        $meeting = $user->meetings()->make([
             'topic' => $reservation->title,
             'duration' => $this->timeInMinute($reservation),
             'type' => ZoomMeetingTypeEnum::RECURRINGMEETINGFIX(),
@@ -150,7 +151,9 @@ class CreateZoomMeetingRecurring
 
         $user->meetings()->save($meeting);
 
-        return $meeting;
+        $zoomResponse = $this->zoomResponse($user, $meeting);
+
+        return $zoomResponse;
     }
 
     /**
@@ -164,7 +167,7 @@ class CreateZoomMeetingRecurring
     {
         return tap(Reservation::where('recurring_id', $reservation->recurring_id)
                     ->where('asset_id', $reservation->asset->id))
-                    ->update(['join_url' => $createZoomMeeting->join_url])
+                    ->update(['join_url' => $createZoomMeeting['join_url']])
                     ->orderBy('date', 'asc')
                     ->first();
     }

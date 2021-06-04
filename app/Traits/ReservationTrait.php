@@ -96,4 +96,23 @@ trait ReservationTrait
 
         return $initDates;
     }
+
+    /**
+     * zoomResponse
+     *
+     * @param  mixed $user
+     * @param  mixed $meeting
+     * @return array
+     */
+    public function zoomResponse($user, $meeting)
+    {
+        $zoomResponse = [
+            'meeting_id' => $meeting->id,
+            'password' => $meeting->password,
+            'host_key' => $user->host_key,
+            'join_url' => $meeting->join_url
+        ];
+
+        return $zoomResponse;
+    }
 }
